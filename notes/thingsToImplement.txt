@@ -1,0 +1,36 @@
+    GRIMOIRE should be a beachen of books, im talking of publishable books
+not just stories written by someone.
+4 main tabs
+-books
+-illustration, comics, mangas
+-search
+-me,downloaded, offline
+
+Add - floating button
+
+20 october, 2024
+-books home screen, one book detail screen should have superb designs
+-download and read should work seamlessly
+-add books should work well
+-me,downloaded and offline should work like mad
+-ads in pdf view
+
+21st october,2024
+- the app should perform all basic features,
+from rendering books in home screen,search, upload, download, view in download, offline , all selction of me is key
+- create user select intended reading language
+
+22th october 2024
+- dark and light mode should be stored in share preference
+- home screen design research
+- edit user
+
+23rd oct, 2024
+=publish book screen should make more sense
+- search should work
+- search index error in switching tabs should be fixed
+- local on device side bar should be decided whetther to ba kept or not
+- history, bookmark, my books and private should all display something true
+- side bar generally should be decided with (i like side bar)
+- style reader page
+- home screen should make more sense
