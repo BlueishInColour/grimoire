@@ -2,8 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:grimoire/commons/adapters/screen_adapter.dart';
 import 'package:grimoire/commons/adapters/story_screen_adapter.dart';
+import 'package:grimoire/home_books/book_detail_screen.dart';
 import 'package:grimoire/main_controller.dart';
+import 'package:grimoire/models/book_model.dart';
+import 'package:grimoire/read/story_player.dart';
+import 'package:provider/provider.dart';
 
+import '../local/local_books_controller.dart';
+import '../local/local_story_model.dart';
 import '../main.dart';
 import '../models/story_model.dart';
 import '../publish/write_edit_screen.dart';
@@ -84,11 +90,42 @@ class StoryRepository{
     goto(context,StoryViewer(story: story));
 
   }
+  playStory(BuildContext context,{required String storyId,required StoryModel story,required BookModel book}){
+
+    goto(context,StoryPlayer( bookId: story.bookId, story: story,book: book,));
+
+  }
 
   writeStory(BuildContext context, {required String storyId}) {
     goto(context, StoryScreenAdapter(storyId:storyId,));
 
   }
+
+   downloadStory(BuildContext context,StoryModel story,BookModel book, int index) {
+    Provider.of<LocalBooksController>(
+        context, listen: false).addToStories(
+        LocalStoryModel(id: story.storyId,
+            title: story.title,
+            bookId: story.bookId,
+            bookTitle:book.title,
+            category: book.category,
+            content: story.content,
+            part: index+1,
+            bookCoverImageUrl: book.bookCoverImageUrl,
+            date: story.createdAt));
+    showToast("Downloaded ${story.title}");
+  }
+  downloadAllStories(BuildContext context, BookModel book)async{
+ QuerySnapshot<Map<String, dynamic>> re  =await FirebaseFirestore.instance.collection("story").where("bookId",isEqualTo: book.bookId).get();
+   List<StoryModel> stories = re.docs.map((v){
+     return StoryModel.fromJson(v.data());
+   }).toList();
+
+    stories.forEach((v)async{
+    await downloadStory(context, v, book, stories.indexOf(v));
+   });
+  }
+
 
 
 }

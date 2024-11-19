@@ -30,14 +30,8 @@ class _PrivateBooksIndexScreenState extends State<PrivateBooksIndexScreen> {
 
             return BookListItem(
               book: book,
-              onTap: (){}, id: book.bookId,
-              imageUrl: book.bookCoverImageUrl,
+              onTap: (){},
               size: 13,
-              bookUrl: book.bookUrl,
-              aboutBook: book.aboutBook,
-              title: book.title,
-              tags: book.tags,
-              genre:  book.category,
             );
           }),
     );

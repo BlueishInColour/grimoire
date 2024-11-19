@@ -1,20 +1,29 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart' hide MarkdownWidget;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grimoire/models/book_model.dart';
 import 'package:grimoire/publish/rewrite_edit_screen.dart';
 import 'package:grimoire/read/story_viewer_ui_controller.dart';
 import 'package:grimoire/models/story_model.dart';
 import 'package:provider/provider.dart';
+import 'package:stop_watch_timer/stop_watch_timer.dart';
 import '../commons/adapters/story_screen_adapter.dart';
 import '../commons/ads/ads_helper.dart';
 import '../commons/ads/ads_view.dart';
 import '../commons/views/dictionary_view.dart';
 
+
+import 'package:timer_stop_watch/timer_stop_watch.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 
+import '../constant/CONSTANT.dart';
+import '../home_books/book_detail_screen.dart';
 import '../main.dart';
 class StoryViewer extends StatefulWidget {
   const StoryViewer({super.key,required this.story});
@@ -26,13 +35,37 @@ class StoryViewer extends StatefulWidget {
 
 
 class _StoryViewerState extends State<StoryViewer> {
+
+  final StopWatchTimer _stopWatchTimer = StopWatchTimer();
+
+
   String selectedText = "";
-@override
+
+  int stopTime=0;
+  @override
 void initState() {
     // TODO: implement initState
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
+    _stopWatchTimer.onStartTimer();
+    _stopWatchTimer.rawTime.listen((v){
+      debugPrint("vv"+v.toString());
+      setState(() {
+        stopTime =v;
+      });
+    });
+}
+
+updateReadHours()async{
+    await FirebaseFirestore.instance.collection("library")
+        .doc(widget.story.bookId)
+        .update({
+      "timeSpentInMilliSeconds":FieldValue.increment(stopTime)
+
+    }).whenComplete((){
+      // showToast("read for ${DateTime.fromMillisecondsSinceEpoch(stopTime)}");
+    });
 }
 
   @override
@@ -86,10 +119,11 @@ void initState() {
               floating: true,
               automaticallyImplyLeading: true,
               foregroundColor: textColor,
+              leading: BackButton(onPressed: ()async{
+                await updateReadHours();
+                Navigator.pop(context);
+              },),
               actions: [
-                if (widget.story.createdBy==FirebaseAuth.instance.currentUser?.email) IconButton(onPressed: (){
-                  goto(context, RewriteEditScreen(bookId: widget.story.bookId, story: widget.story));
-                }, icon: const Icon(Icons.edit_outlined,weight: 10,)) else SizedBox(),
 
                 IconButton(onPressed: (){
                   if(c.brightness == Brightness.Light){c.brightness = Brightness.Dark;}
@@ -115,12 +149,19 @@ void initState() {
               floating: false,
               pinned: false,
               automaticallyImplyLeading: false,
-              title: Text(widget.story.title,style: GoogleFonts.merriweather(
-                color: textColor,
-                fontSize: 25,
-                fontWeight: FontWeight.w800,
+              title:
 
-              ),),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(color: colorRed,width: 7,height: 40,),
+                  SizedBox(width: 5,),
+                  Text(widget.story.title,
+                    style: GoogleFonts.crimsonText(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 25
+                    ),),
+                ],),
             ),
             widget.story.storyCoverImageUrl.isNotEmpty?SliverAppBar(
                 toolbarHeight: 200,
@@ -148,7 +189,7 @@ void initState() {
                     softLineBreak: true,
                     styleSheetTheme: MarkdownStyleSheetBaseTheme.platform,
                     styleSheet: MarkdownStyleSheet(
-                        p : GoogleFonts.merriweather(
+                        p : GoogleFonts.crimsonText(
                           color: textColor,
                           fontSize:  fontSize
                         )
@@ -172,4 +213,14 @@ void initState() {
       },
     );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _stopWatchTimer.dispose();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual);
+
+
+  }
+
 }

@@ -47,8 +47,8 @@ Future<List<Future<LocalStoryModel>>?>  fetchStories()async{
   }
 
 Stream<bool> isStoryDownloaded(storyId)async*{
-    bool isDownloaded = storyBox.containsKey(storyId);
-    yield isDownloaded;
+    yield storyBox.containsKey(storyId);
+
 }
 
 }

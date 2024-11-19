@@ -1,12 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grimoire/commons/buttons/tag_button.dart';
 import 'package:grimoire/main.dart';
 import 'package:grimoire/main_controller.dart';
+import 'package:grimoire/models/user.dart';
 import 'package:grimoire/read/pdf_viewer_screen.dart';
 import 'package:grimoire/repository/book_repository.dart';
+import 'package:grimoire/repository/user_repository.dart';
 import 'package:provider/provider.dart';
 import '../../models/book_model.dart';
 import '../buttons/download_button.dart';
@@ -14,26 +17,21 @@ import '../../home_books/book_detail_screen.dart';
 
 
 class BookListItem extends StatefulWidget {
-  const BookListItem({super.key,this.child,required this.onTap,
+  const BookListItem({
+    super.key,this.child,
+    required this.onTap,
   required  this.book,
-    this.tags =const [],
-    this.genre ='',
-    this.bookUrl = "",this.store = "",required this.imageUrl,required this.id,this.sold = 0,this.size=15,this.title = "",this.aboutBook="",this.authorPenName="grimoire",this.price = 20000});
+    required this.size,
+    this.textColor = Colors.black87,
+    this.secondTextColor = Colors.black54
+
+  });
   final double size;
-  final String id;
-  final String title;
-  final String aboutBook;
-  final String authorPenName;
-  final double price;
-  final int sold;
-  final String imageUrl;
-  final String bookUrl;
-  final String store;
-  final String genre;
-  final Function()? onTap;
   final Widget? child;
-  final List<String> tags;
   final BookModel book;
+  final Function() onTap;
+  final Color textColor;
+  final Color secondTextColor;
 
   @override
   State<BookListItem> createState() => _BookListItemState();
@@ -42,6 +40,7 @@ class BookListItem extends StatefulWidget {
 class _BookListItemState extends State<BookListItem> {
   @override
   Widget build(BuildContext context) {
+    BookModel book  = widget.book;
     return Consumer<MainController>(
       builder:(context,c,child)=> Padding(
         padding: const EdgeInsets.symmetric(horizontal: 2.0,vertical: 10),
@@ -52,61 +51,113 @@ class _BookListItemState extends State<BookListItem> {
 
           child: GestureDetector(
             onLongPress: (){
-    BookRepository().readBook(context, bookId: widget.id, bookPath: widget.bookUrl,isFile: false);
+    BookRepository().readBook(context, bookId: book.bookId, bookPath: book.bookUrl,isFile: false);
             },
-            onTap: (){
-              // c.readBook(context, bookId: widget.id, bookPath: widget.bookUrl,isFile: false);
-              goto(context, BookDetailScreen(bookId:widget.id,book: widget.book,));
-
-              },
+            onTap:widget.onTap,
             child: Container(
-              width: 400,
 
-              padding: EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(10)
-
-              ),
-
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(widget.title,
-                    style: GoogleFonts.merriweather(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12,
-
-                      // overflow: TextOverflow.ellipsis,
-
-                    ),),
-                  SizedBox(height: 10,),
-                  SizedBox(
-                    height:16*widget.size,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        image(context,widget.imageUrl, widget.size),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Text(widget.aboutBook,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 12,
-                              style: GoogleFonts.merriweather(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 8,
-
-
-                              ),),
+              child: SizedBox(
+                height:8*widget.size,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    image(context,book.bookCoverImageUrl, widget.size),
+                    SizedBox(width: 5,),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                              child: Text(book.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.montserrat(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize:20,
+                                  color: widget.textColor
+                                ),
+                            ),
                           ),
-                        ),
+                      
+                          FutureBuilder(
+                            future: UserRepository().getOneUser(email: widget.book.createdBy, isCompleted: (){}),
+                            builder: (context, snapshot) {
+                              final textStyle =  GoogleFonts.montserrat(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize:12,
+                                  color:widget.secondTextColor
+                              );
+                              if(snapshot.connectionState == ConnectionState.waiting) return Text("@",style: textStyle,);
+                              else if(snapshot.hasData) {
+                                User user = snapshot.data ??User();
+                                  return Text("@" + user.full_name,
+                                      style: textStyle);
+                                }
+                              else return Text("@curator",style: textStyle,);
+                              }
+                          ),
+                          Expanded(
+                            child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              children: book.tags.map((v){return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: Text("#" +v,
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w800,
+                                color: widget.secondTextColor
+                              ),),
+                                                  
+                            );}).toList(),),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Row(children: [
+                                Icon(Icons.book_outlined,color: Colors.grey,
+                                  size: 16,
+                                ),
+                                SizedBox(width: 2,),
+                                FutureBuilder(
+                                  future: FirebaseFirestore.instance.collection("story").where("bookId",isEqualTo: book.bookId).count().get(),
+                                  builder: (context, snapshot) {
+                                    if(snapshot.connectionState==ConnectionState.waiting)return SizedBox();
+                                    else if(snapshot.hasData) {
+                                      int count = snapshot.data?.count??0;
+                                          return Text(
+                                            count.toString(),
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w900,
+                                                color: widget.secondTextColor),
+                                          );
+                                        } else return SizedBox();
+                                  }
+                                ),],),
+                              SizedBox(width: 10,),
+                      
+                              Container(
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.purple.shade50,
+                                    borderRadius: BorderRadius.circular(5)
+                                  ),
+                                  child: Text(widget.book.category,
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.w800
 
+                                  ),)),
 
-                      ],
+                            ],
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+
+
+                  ],
+                ),
               ),
             ),
           ),
@@ -121,19 +172,19 @@ Widget image(context,String imageUrl,double size,){
   Widget placeHolder(){
     return   Image.asset(
       "assets/book_cover.png",
-      height: 16*size,
-      width: 9*size,
+      height: 8*size,
+      width: 5*size,
       fit: BoxFit.fill,);
   }
   return  ClipRRect(
-    borderRadius: BorderRadius.circular(4),
+    borderRadius: BorderRadius.circular(8),
     child:
-    // kIsWeb?
+    kIsWeb?
         Container(
           color: Colors.grey[200],
 
-          height: 16*size,
-          width: 9*size,
+          height: 8*size,
+          width: 5*size,
           child:imageUrl.isEmpty?
               placeHolder()
 
@@ -147,22 +198,22 @@ Widget image(context,String imageUrl,double size,){
             },
             fit: BoxFit.fill,
 
-            height: 16*size,
-            width: 9*size,
+            height: 8*size,
+            width: 5*size,
           ),
-        )
-      //   : CachedNetworkImage(
-      // imageUrl: imageUrl,
-      // height: 16*size,
-      // width: 9*size,
-      // fit: BoxFit.fill,
-      // placeholder: (_,__){
-      //   return placeHolder();
-      // },
-      // errorWidget: (context,_,__){
-      //   return placeHolder();
-      // },
+  )
+        : CachedNetworkImage(
+      imageUrl: imageUrl,
+      height: 8*size,
+      width: 5*size,
+      fit: BoxFit.fill,
+      placeholder: (_,__){
+        return placeHolder();
+      },
+      errorWidget: (context,_,__){
+        return placeHolder();
+      },
     
     // ),
-  );
+  ));
 }

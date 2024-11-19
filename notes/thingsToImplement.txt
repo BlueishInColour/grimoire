@@ -120,8 +120,42 @@ done - search index section should stop crashliking
 calculare monitization with readhours and seen history
 
 19th nov, 2024
-- count in tab bar item like novels total count badge
-- users should be able to remove from picks
+- count in tab bar item like novels total count badgeth
 -- read play settings
 - learn more about firestore rules and ruling.
--
+- book grid and list item,
+- tags should be more done
+- update book better
+- remove provocative ads
+- ads to play before downloading books
+- local page of epub dic abd so should worj in karger andriud
+
+- likees, picks, coming soon,
+-  no of likes,no of chapters, readhours,
+- list tile redesign
+
+23rd nov, 2024
+- search and chat redesigning
+- book details, read and play redesign
+
+
+24th nov, 2024
+- searchindex screen should bring what is expected
+ - publish edit should fetch sub categories for users to select
+ - read should fetch stories in 10s so that the fetch load is not much
+ - deep link should work as expected with go route
+ - book menu screen should work well, every function there
+ - find how hoste www. developer. can work for my web app
+ - listadaptive should woek in dark mode
+
+ 25th nov, 2024
+ - coming soon screen should be better rendered stories and books with different tabs
+ - update subgenries in search index
+ - deal with history error
+
+ 26th nov, 2024
+ - make sure  curation and books are published based on status approved by grimoire
+ - writers should have buy me a coffe lik
+
+28th nov 2024
+- app should hide private books allround app

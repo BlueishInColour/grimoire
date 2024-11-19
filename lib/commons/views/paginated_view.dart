@@ -12,8 +12,10 @@ Widget paginatedView(
     {required Query<Object?> query,
       Key? key,
       String emptyText = "",
+      Color loadWidgetColor = Colors.black,
       ViewType viewType = ViewType. list,
       bool reverse = false,
+      bool shrinkWrap = false,
       Axis scrollDirection = Axis. vertical,
       SliverGridDelegate gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2) ,
       required Function( List<DocumentSnapshot<Object?>>, int)
@@ -23,6 +25,7 @@ Widget paginatedView(
     child: FirestorePagination(
       key: key,
       query: query,
+      shrinkWrap: shrinkWrap,
       isLive: true,
       reverse: reverse,
       scrollDirection: scrollDirection,
@@ -42,33 +45,8 @@ Widget paginatedView(
           return child(documentSnapshot,index);
       },
 
-      onEmpty:Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Image.asset("assets/empty.png",height: 200,),
-          SizedBox(width: 5,),
-          emptyText.isNotEmpty?Text(emptyText):SizedBox.shrink(),
-          SizedBox(width: 5,),
-
-          adaptiveAdsView(
-              AdHelper.getAdmobAdId(adsName:Ads.addUnitId3),
-              adSize: AdSize.banner
-          ),
-        ],
-      ),
-      initialLoader:   Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          adaptiveAdsView(
-              AdHelper.getAdmobAdId(adsName:Ads.addUnitId3),
-            adSize: AdSize.banner
-          ),
-          SizedBox(height: 10,),
-          loadWidget(color: Colors.black),
-        ],
-      ),
+      onEmpty:emptyWidget(),
+      initialLoader:   loadWidget(color: loadWidgetColor),
       bottomLoader: Center(child: loadWidget(color: Colors.black)),
       limit: 5,
 

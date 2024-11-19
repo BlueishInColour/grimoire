@@ -82,7 +82,7 @@ chooseBookCoverPhoto(BuildContext context)async{
   if (result != null) {
     File file = File(result.files.single.path!);
     bookCoverPhotoPath = file.path;
-    goto(context, CropImageScreen(ratio: Ratio(width: 9, height: 16),afterCropped: (image){
+    goto(context, CropImageScreen(ratio: Ratio(width: 5, height: 8),afterCropped: (image){
       uploadListOfMemoryImage(context, medias: [image],
           afterOneUpload: (v){bookCoverImageUrl = v;},
           afterTotalUpload: (){Navigator.pop(context);},

@@ -51,3 +51,4 @@ class AuthGateState extends State<AuthGate> {
     );
   }
 }
+

@@ -1,10 +1,21 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:custom_image_crop/custom_image_crop.dart';
+import 'package:easy_url_launcher/easy_url_launcher.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grimoire/home_books/book_detail_screen.dart';
 import 'package:grimoire/main.dart';
+import 'package:grimoire/main_controller.dart';
 import 'package:grimoire/publish/publish_controller.dart';
+import 'package:language_picker/language_picker_dropdown.dart';
+import 'package:language_picker/languages.dart';
+import 'package:language_picker/languages.g.dart';
 import 'package:provider/provider.dart';
+import '../commons/views/crop_image_screen.dart';
 import '../constant/CONSTANT.dart';
-import '../chat/chat_screen.dart';
 import '../commons/views/book_list_item.dart';
 import '../models/book_model.dart';
 import '../repository/book_repository.dart';
@@ -22,6 +33,8 @@ class _PublishRewriteEditScreenState extends State<PublishRewriteEditScreen> {
   final titleController = TextEditingController();
   final aboutBookController = TextEditingController();
   final tagsController = TextEditingController();
+  BookModel bookModel = BookModel();
+
   buttonStyle ()=>ButtonStyle(
       minimumSize: WidgetStatePropertyAll(Size(400,50)),
       alignment:Alignment.centerLeft,
@@ -48,18 +61,19 @@ class _PublishRewriteEditScreenState extends State<PublishRewriteEditScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    bookModel = widget.book;
+    titleController.text = widget.book.title;
+    aboutBookController.text =widget.book.aboutBook;
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      Provider.of<PublishController>(context, listen: false).bookModel = widget.book;
-      titleController.text = widget.book.title;
-      aboutBookController.text =widget.book.aboutBook;
 
     });
   }
   @override
   Widget build(BuildContext context) {
     final double size = 10;
-    return Consumer<PublishController>(
-      builder:(context,c,child)=> Scaffold(
+
+    return Scaffold(
           backgroundColor: Colors.grey[200],
           appBar: AppBar(
             automaticallyImplyLeading: true,
@@ -68,7 +82,7 @@ class _PublishRewriteEditScreenState extends State<PublishRewriteEditScreen> {
 
             actions: [
               TextButton(onPressed: (){
-                BookRepository().createBook(context, book: c.bookModel, bookId: widget.book.bookId,
+                BookRepository().createBook(context, book: bookModel, bookId: widget.book.bookId,
                     whenCompleted: (){Navigator.pop(context);});
               },
                   child: Text("Save"))
@@ -85,7 +99,7 @@ class _PublishRewriteEditScreenState extends State<PublishRewriteEditScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    image(context,c.bookCoverImageUrl,size),
+                    image(context,bookModel.bookCoverImageUrl,size),
 
                     SizedBox(width: 5,),
                     Expanded(
@@ -98,18 +112,17 @@ class _PublishRewriteEditScreenState extends State<PublishRewriteEditScreen> {
                           SizedBox(height: 10,),
                           //select/choose book cover
                           TextButton.icon(
-                            onPressed: (){c.chooseBookCoverPhoto(context);},
+                            onPressed: (){chooseBookCoverPhoto(context);},
                             icon: Icon(Icons.image_outlined),
-                            label: Text(c.bookCoverPhotoPath),),
+                            label: Text("Choose Book Cover Picture"),),
                           SizedBox(height: 10,),
                           TextButton.icon(
                               icon: Icon(Icons.color_lens_outlined),
-                              onPressed: (){
-                                goto(context, ChatScreen(
-                                  email: "blueishincolor@gmail.com",
-                                  messageText:"Yo! I need a professional Book Cover for my book, Let's chat!",
+                              onPressed: ()async{
+                              await  EasyLauncher.email(
+                                    email: "blueishincolour@gmail.com",
+                                    subject: "Request for Professional Book Cover Art");
 
-                                  showMessageBar: true,));
                               },
                               label: Text("Get Professional Book Cover Art")),
                           //select book
@@ -128,7 +141,7 @@ class _PublishRewriteEditScreenState extends State<PublishRewriteEditScreen> {
                 TextField(
                   controller: titleController,
                   style: GoogleFonts.merriweather(),
-                  onChanged: (v) {c.title = v;},
+                  // onChanged: (v) {c.title = v;},
                   decoration: InputDecoration(
                       labelText: "title ...",
                       fillColor: Colors.white70
@@ -141,7 +154,7 @@ class _PublishRewriteEditScreenState extends State<PublishRewriteEditScreen> {
                   controller: aboutBookController,
                   style: GoogleFonts.merriweather(),
 
-                  onChanged: (v){c.aboutBook  = v;},
+                  // onChanged: (v){c.aboutBook  = v;},
                   minLines: 10,
                   maxLines: 10,
                   decoration: InputDecoration(
@@ -155,14 +168,27 @@ class _PublishRewriteEditScreenState extends State<PublishRewriteEditScreen> {
 
                 //choose category
                 DropdownMenu(
-                  label: Text("choose Genre"),
+                  label: Text(bookModel.category.isEmpty?"choose Genre":bookModel.category),
+
 
                   width: MediaQuery.of(context).size.width,
+                  menuStyle: MenuStyle(
+
+
+                      fixedSize: WidgetStatePropertyAll(Size(200,500)),
+                      // maximumSize: WidgetStatePropertyAll(Size(200,500))
+                  ),
+
                   inputDecorationTheme: InputDecorationTheme(
+                    
                       filled: true,
+
                       fillColor: filledColor
                   ),
-                  onSelected: (v){c.category = v;},
+                  onSelected: (v){setState(() {
+
+                    bookModel.category = v ??"??";
+                  });},
                   enableSearch: true,
 
                   dropdownMenuEntries: categories.map((v){
@@ -176,7 +202,7 @@ class _PublishRewriteEditScreenState extends State<PublishRewriteEditScreen> {
                   shrinkWrap: true,
                   children: [
                     Wrap(
-                      children: c.tags.map((v){return
+                      children: bookModel.tags.map((v){return
                         Padding(
                           padding: const EdgeInsets.all(3.0),
                           child: ElevatedButton.icon(
@@ -185,7 +211,10 @@ class _PublishRewriteEditScreenState extends State<PublishRewriteEditScreen> {
                                   backgroundColor : WidgetStatePropertyAll(Colors.grey[100])
                                   ,foregroundColor : WidgetStatePropertyAll(Colors.black87)
                               ),
-                              onPressed: (){c.removeFromTag(v);},
+                              onPressed: (){
+                                setState(() {
+                                  bookModel.tags.remove(v);
+                                });;},
                               label: Icon(Icons.clear),
                               icon: Text("#"+v)),
                         );}).toList(),
@@ -205,7 +234,7 @@ class _PublishRewriteEditScreenState extends State<PublishRewriteEditScreen> {
                       ,
                       suffixIcon: IconButton(
                         onPressed: (){
-                          c.addToTag(tagsController.text);
+                          bookModel.tags.add(tagsController.text);
                           tagsController.clear();
                         },
                         icon: Icon(Icons.add  ),
@@ -214,66 +243,83 @@ class _PublishRewriteEditScreenState extends State<PublishRewriteEditScreen> {
 
                 //chose language
                 SizedBox(height: 20,),
-                DropdownMenu(
-                  onSelected: (v){c.language = v;},
-
-                  label: Text("choose language"),
-                  width: MediaQuery.of(context).size.width,
-
-                  enableSearch: true,
-                  inputDecorationTheme: InputDecorationTheme(
-                      filled: true,
-                      fillColor: filledColor
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                      color: filledColor
                   ),
+                  child: LanguagePickerDropdown(
 
-                  dropdownMenuEntries: languages.map((v){
-                    return DropdownMenuEntry(value: v, label: v);
-                  }).toList(),
+
+                    initialValue:Language.fromIsoCode(bookModel.languageIsoCode),
+                    onValuePicked: (Language language) {
+                      setState(() {
+                        bookModel.language =language.name;
+                        bookModel.languageIsoCode =language.isoCode;
+                      });;
+                    },
+                  ),
                 ),
                 SizedBox(height: 20,),
                 DropdownMenu(
-                  label: Text("Status"),
+                  label: Text( bookModel.status.name.isEmpty? "Status":bookModel.status.name),
 
                   width: MediaQuery.of(context).size.width,
                   inputDecorationTheme: InputDecorationTheme(
                       filled: true,
                       fillColor: filledColor
                   ),
-                  onSelected: (v){c.status = v;},
+                  onSelected: (v){setState(() {
+                    bookModel.status = v ??Status.Drafted;
+                  });;},
                   enableSearch: true,
 
                   dropdownMenuEntries: [
                     Status.Drafted,
                     Status.Private,
-                  Status.Review
+                  Status.Review,
+                    Status.Scheduled
                   ].map((v){
                     return DropdownMenuEntry(value: v, label:v==Status.Review?"Publish": v.name,);
                   }).toList(),
                 ),
 
                 //[privacy]
-
-                SizedBox(height: 10,),
-
-                //allow hard copy printing and sales
-                TextButton.icon(
-                    style: ButtonStyle(
-                        alignment: Alignment.centerLeft
-                    ),
-                    onPressed: (){c.approveHardcopyPublishing = !c.approveHardcopyPublishing;},
-                    icon   :  Checkbox(value: c.approveHardcopyPublishing,
-                        onChanged: (v){c.approveHardcopyPublishing = v;}),
-                    label: Text("Approve hard copy distribution") ),
-
-
-
                 SizedBox(height: 20,),
               ],
             ),
           )
-      ),
+    );}
+
+
+  chooseBookCoverPhoto(BuildContext context)async{
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false
+
     );
+
+
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      var bookCoverPhotoPath = file.path;
+      goto(context, CropImageScreen(ratio: Ratio(width: 9, height: 16),afterCropped: (image){
+        MainController().uploadListOfMemoryImage(context, medias: [image],
+            afterOneUpload: (v){
+          setState(() {
+            bookModel.bookCoverImageUrl = v;
+          });},
+            afterTotalUpload: (){Navigator.pop(context);},
+            isFailed: (){showToast( "Failed to upload cropped image");});
+      },));
+
+    } else {
+      // User canceled the picker
+    }
   }
+
+
+
 }
 
 

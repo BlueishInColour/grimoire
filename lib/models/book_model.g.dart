@@ -31,8 +31,10 @@ BookModel _$BookModelFromJson(Map<String, dynamic> json) => BookModel(
       approveHardcopyPublishing:
           json['approveHardcopyPublishing'] as bool? ?? false,
       language: json['language'] as String? ?? "",
+      languageIsoCode: json['languageIsoCode'] as String? ?? "en",
     )
-      ..readHours = json['readHours'] as String?
+      ..timeSpentInMilliSeconds =
+          (json['timeSpentInMilliSeconds'] as num).toInt()
       ..readerCount = (json['readerCount'] as num?)?.toInt()
       ..pages = (json['pages'] as num?)?.toInt()
       ..createdAt = DateTime.parse(json['createdAt'] as String)
@@ -55,7 +57,8 @@ Map<String, dynamic> _$BookModelToJson(BookModel instance) => <String, dynamic>{
       'status': _$StatusEnumMap[instance.status]!,
       'approveHardcopyPublishing': instance.approveHardcopyPublishing,
       'language': instance.language,
-      'readHours': instance.readHours,
+      'languageIsoCode': instance.languageIsoCode,
+      'timeSpentInMilliSeconds': instance.timeSpentInMilliSeconds,
       'readerCount': instance.readerCount,
       'pages': instance.pages,
       'searchTags': instance.searchTags,
@@ -68,6 +71,7 @@ const _$StatusEnumMap = {
   Status.Review: 'Review',
   Status.Private: 'Private',
   Status.Drafted: 'Drafted',
+  Status.Scheduled: 'Scheduled',
   Status.Publish: 'Publish',
   Status.Rejected: 'Rejected',
   Status.Completed: 'Completed',

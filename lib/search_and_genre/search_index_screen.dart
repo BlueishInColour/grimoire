@@ -1,13 +1,15 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grimoire/commons/views/bottom.dart';
+import 'package:grimoire/commons/views/tab_count.dart';
 import 'package:grimoire/constant/CONSTANT.dart';
 import 'package:grimoire/search_and_genre/genre_search_index_screen.dart';
 import 'package:grimoire/search_and_genre/search_result_screen.dart';
-import '../chat/chat_screen.dart';
+
 import '../commons/ads/ads_helper.dart';
 import '../commons/ads/ads_view.dart';
 import '../main.dart';
@@ -22,7 +24,7 @@ class SearchIndexScreen extends StatefulWidget {
 
 class _SearchIndexScreenState extends State<SearchIndexScreen> with TickerProviderStateMixin {
   late TabController tabController;
-
+int selectedIndex = 0;
   @override
   void initState() {
     // TODO: implement initState
@@ -50,8 +52,27 @@ class _SearchIndexScreenState extends State<SearchIndexScreen> with TickerProvid
           TabBar(
               isScrollable: true,
               controller: tabController,
+              labelColor: colorRed,
+              indicatorColor: colorRed,
+              onTap: (v){
+                setState(() {
+                  selectedIndex = v;
+                });
+              },
               tabs: categories.map((v){
-            return Tab(text: v);
+            return Tab(
+
+                child:Row(
+              children: [
+                Text(v),
+                SizedBox(width: 4,),
+                tabCount(
+
+                    context,
+                    backgroundColor : selectedIndex == categories.indexOf(v)?colorRed:Colors.black87,
+                    future: FirebaseFirestore.instance.collection("library").where("category",isEqualTo: v).where("private",isEqualTo: false).count().get())
+              ],
+            ) );
           }).toList())
               // SizedBox(height: 50,
               // child
@@ -72,6 +93,7 @@ class _SearchIndexScreenState extends State<SearchIndexScreen> with TickerProvid
       ),
 
             body:TabBarView(
+
                 controller: tabController,
                 children: categories.map((v){
             return  GenreIndexScreen(

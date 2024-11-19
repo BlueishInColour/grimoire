@@ -8,12 +8,12 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   //signin method
-  Future<UserCredential> login(String email, String password,BuildContext context) async {
+  Future<UserCredential> login(String email, String password,BuildContext context,{required Widget child}) async {
     var details = await _auth.signInWithEmailAndPassword(
         email: email, password: password);
-    if(details.user!.email!.isNotEmpty){
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> MainApp()));
-    }
+    // if(details.user!.email!.isNotEmpty){
+    //   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> child));
+    // }
 
     return details;
   } //signin method

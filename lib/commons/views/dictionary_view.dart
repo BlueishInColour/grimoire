@@ -34,12 +34,50 @@ class _DictionaryViewState extends State<DictionaryView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      appBar:widget.showSearchBar? AppBar(
+        backgroundColor: Colors.transparent,
+        title:  widget.showSearchBar?
+        SearchBar(
+          controller: textController,
+          onChanged: (v) {
+            setState(() {
+              searchText = v;
+            });
+          },
+            hintText: "Search word meaning ...",
+
+          keyboardType: TextInputType.text,
+          textInputAction: TextInputAction.search,
+          onSubmitted: (v){
+            goto(context, DictionaryView(searchText: v,));
+          },
+
+
+
+              trailing: [IconButton(
+                onPressed: (){
+                  goto(context, DictionaryView(
+                    searchText: textController.text,
+                    autoFocus: widget.autoFocus,));
+
+                },
+                icon: Icon(Icons.search,
+                  color: Colors.black45,
+                ),
+              )]
+
+        ):SizedBox.shrink(),
+      ):null,
+      body:
+      searchText.isEmpty?
+          emptyWidget() :
+      Column(
         children: [
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: FutureBuilder(
+                key: Key(searchText),
                 future:  FreeDictionary.getWordMeaning(word: searchText),
                 builder: (context, snapshot) {
                   if(snapshot.connectionState ==ConnectionState.waiting)return loadWidget(color:Colors.black);
@@ -62,82 +100,13 @@ class _DictionaryViewState extends State<DictionaryView> {
 
 
                   }
-                  else {return Image.asset("assets/empty.png");}
+                  else {return emptyWidget();}
                 }
               ),
 
             ),
           ),
-         widget.showSearchBar? BottomBar(
-            child:(fontSize,iconSize)=> TextField(
-              controller: textController,
-              onChanged: (v) {
-                setState(() {
-                  searchText = v;
-                });
-              },
 
-              style: GoogleFonts.merriweather(
-                  fontSize: fontSize,
-                  color: Colors.white70
-              ),
-
-
-              keyboardType: TextInputType.text,
-              textInputAction: TextInputAction.search,
-              onSubmitted: (v){
-                goto(context, DictionaryView(searchText: v,));
-              },
-
-
-
-              cursorHeight: 17,
-              cursorColor: Colors.white,
-
-
-              decoration: InputDecoration(
-                  contentPadding: EdgeInsets.only(top: 20),
-                  hintText: "search or ask the librarian ...",
-                  hintStyle: GoogleFonts.merriweather(
-                      fontSize: fontSize,
-                      color: Colors.white70
-                  ),
-                  filled: true,
-
-                  fillColor: Colors.transparent,
-                  border: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  errorBorder: InputBorder.none,
-                  disabledBorder: InputBorder.none,
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: IconButton(
-                        onPressed: (){
-                          goto(context, MainApp());
-                        },
-                        icon: Icon(EneftyIcons.home_2_outline,color: Colors.white70,size: iconSize,)),
-                  ),
-
-                  suffixIcon: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: IconButton(
-                      onPressed: (){
-                        goto(context, DictionaryView(
-                          searchText: textController.text,
-                          autoFocus: widget.autoFocus,));
-
-                      },
-                      icon: Icon(Icons.search,
-                        color: Colors.white70,
-                        size: iconSize,
-                      ),
-                    ),
-                  )
-
-              ),
-            ),
-          ):SizedBox.shrink(),
         ],
       ),
       bottomNavigationBar: adaptiveAdsView(

@@ -24,9 +24,7 @@ class _ReviewBooksScreenState extends State<ReviewBooksScreen> {
         return Column(
           children: [
             BookListItem(onTap: (){goto(context, BookDetailScreen(bookId: book.bookId, book: book));},
-              book: book, imageUrl: book.bookCoverImageUrl, id: book.bookId,
-            title: book.title,
-                aboutBook: book.aboutBook,
+              book: book, size: 20,
             ),
             SizedBox(height: 10,),
             Row(

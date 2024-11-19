@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grimoire/commons/views/book_list_item.dart';
+import 'package:grimoire/constant/CONSTANT.dart';
 import 'package:grimoire/local/local_books_controller.dart';
 import 'package:grimoire/local/local_story_model.dart';
 import 'package:grimoire/local/read_offline_book_view.dart';
@@ -39,6 +40,9 @@ class _DownloadedIndexScreenState extends State<DownloadedIndexScreen> with Tick
     return Consumer<MainController>(
 
         builder:(context,c,child)=> Scaffold(
+          appBar: AppBar(
+            title: Text("Downloads"),
+          ),
           body: FutureBuilder(future: LocalBooksController().fetchStories(),
               builder: (context,snapshot){
             if(snapshot.connectionState ==ConnectionState.waiting)return loadWidget();
@@ -56,7 +60,7 @@ class _DownloadedIndexScreenState extends State<DownloadedIndexScreen> with Tick
                        child: Container(
                          child: Row(
                            children: [
-                             image(context, "imageUrl", 5)
+                             image(context, "imageUrl", 14)
                            ],
                          ),
                        ),
@@ -74,16 +78,16 @@ class _DownloadedIndexScreenState extends State<DownloadedIndexScreen> with Tick
 
                            },
                            child: SizedBox(
-                             height: 16*5,
+                             height: 8*14,
                              // width: MediaQuery.of(context).size.width,
                              child: Row(
                                crossAxisAlignment: CrossAxisAlignment.start,
                                children: [
-                                 image(context, "imageUrl", 5),
+                                 image(context, "imageUrl", 14),
                                SizedBox(width: 10,),
                                Expanded(
                                  child: Column(
-                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                   mainAxisAlignment: MainAxisAlignment.start,
                                      crossAxisAlignment: CrossAxisAlignment.start,
                                    children: [
                                      Text(story.bookTitle +" ${story.part ?? 1}",
@@ -92,39 +96,24 @@ class _DownloadedIndexScreenState extends State<DownloadedIndexScreen> with Tick
                                        fontWeight: FontWeight.w900,
                                        color: Colors.black54
                                      ),),
-
+                                 
                                      Text(story.title,
                                        style: GoogleFonts.merriweather(
                                            fontSize: 15,
                                          fontWeight: FontWeight.w800
                                        ),),
-
-                                     Row(
-                                       mainAxisAlignment: MainAxisAlignment.start,
-                                       crossAxisAlignment: CrossAxisAlignment.end,
-                                       children: [
-                                         TextButton.icon(
-                                            style:ButtonStyle(
-                                        padding: WidgetStatePropertyAll(EdgeInsets.zero)
-                                     ) ,
-                                             onPressed: (){
-                                         },
-                               icon: Icon(Icons.menu_book_sharp), label: Text("Read",style: GoogleFonts.merriweather(fontSize: 8),)),
-
-                                         TextButton.icon(onPressed: (){
-                                           showModalBottomSheet(context: context, builder: (context){
-                                             return StoryPlayer(stories: [StoryModel(title: story.title,storyId: story.id,bookId: story.bookId,storyCoverImageUrl: "",content: story.content)], bookId: story.bookId,);
-                                           });
-                                         },
-                                             icon: Icon(Icons.play_arrow_outlined),
-                                             label: Text("Play",style: GoogleFonts.merriweather(fontSize: 8),)),
-                                       ],
-                                     )
-
-
+                                 
+                                 
+                                 
                                    ],
                                  ),
                                ),
+                                 Center(
+                                   child: IconButton(onPressed: (){
+                                   goto(context, StoryPlayer(story:StoryModel(title: story.title,storyId: story.id,bookId: story.bookId,storyCoverImageUrl: "",content: story.content), bookId: story.bookId,book: BookModel(title: story.bookTitle,bookCoverImageUrl: story.bookCoverImageUrl??""),));
+                                   },
+                                       icon: Icon(Icons.play_arrow_outlined,color: colorRed,),),
+                                 )
 
                                ],
                              ),

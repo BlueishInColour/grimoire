@@ -34,42 +34,62 @@ Widget authTextField(
       Widget? suffix}
     ){
   return
-    Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: SizedBox(
-        // height: 60,
+    SizedBox(
 
-        child: Form(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(hintText,
+          style: GoogleFonts.montserrat(
+            color: Colors.white70,
+            fontWeight: FontWeight.w800
+          ),),
+          SizedBox(height: 5,),
+          Form(
 
-      autovalidateMode:validateEmai? AutovalidateMode.always:AutovalidateMode.disabled,
-          child: TextFormField  (
+              autovalidateMode:validateEmai? AutovalidateMode.always:AutovalidateMode.disabled,
+            child: TextFormField  (
 
 
-            onChanged: onChanged,
-            controller: controller,
-            validator:(value)=>validateEmail(value),
-            obscureText: obscureText,
-            keyboardType:keyboardType ,
+              onChanged: onChanged,
+              controller: controller,
+              validator:(value)=>validateEmail(value),
+              obscureText: obscureText,
+              keyboardType:keyboardType ,
 
-            style: GoogleFonts.merriweather(
-              color: Colors.black,
-              fontSize: 12
+              style: GoogleFonts.montserrat(
+                color: Colors.black,
+                fontSize: 12
+              ),
+              // maxLines: maxLines,
+              // minLines: minLines,
+              decoration:
+              InputDecoration(
+                  hintText: hintText,
+                  hintStyle: GoogleFonts.montserrat(
+                      color: Colors.black,
+                      fontSize: 12
+                  ),
+                  filled:true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8)
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)
+                  ),
+                  errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)
+                  ),
+
+
+                  suffixIcon: suffix),
             ),
-            // maxLines: maxLines,
-            // minLines: minLines,
-            decoration:
-            InputDecoration(
-                labelText: hintText,
-                labelStyle: GoogleFonts.merriweather(
-                    color: Colors.black,
-                    fontSize: 12
-                ),
-                filled:true,
-                fillColor: Colors.white70,
-
-                suffixIcon: suffix),
           ),
-        ),
+        ],
       ),
     );
 }

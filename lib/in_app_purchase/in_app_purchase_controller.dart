@@ -89,14 +89,14 @@ dispose(){
       Set<String> _kIds = <String>{productId };
       final ProductDetailsResponse response =
       await _iap.queryProductDetails(_kIds);
-      if (response.notFoundIDs.isNotEmpty) {
-        // Handle the error.
-        print("####### found no products");
-      }
-      products = response.productDetails;
+      // if (response.notFoundIDs.isNotEmpty) {
+      //   // Handle the error.
+      //   print("####### found no products");
+      // }
+      // products = response.productDetails;
 
       final PurchaseParam purchaseParam =
-      PurchaseParam(productDetails:products[0]);
+      PurchaseParam(productDetails:ProductDetails(id: "grimoire_sliver", title: "Grimoire Sliver", description: "Unlock download section ", price: "1200.00", rawPrice: 1200.00, currencyCode: "NGN"));
       await _iap.buyConsumable(purchaseParam: purchaseParam);
     } catch (e) {
       // Handle purchase error

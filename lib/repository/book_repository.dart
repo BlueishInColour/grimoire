@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:grimoire/main_controller.dart';
+import 'package:grimoire/repository/history_repository.dart';
 import 'package:uuid/uuid.dart';
 
 import '../main.dart';
@@ -41,16 +42,7 @@ setHistory(bookId);
 
 
   setHistory(bookId)async{
-    await FirebaseFirestore.instance.collection("user_data")
-        .doc(FirebaseAuth.instance.currentUser?.email)
-        .collection("history")
-        .doc(bookId)
-        .set(
-        HistoryModel(
-            bookId: bookId,
-            updatedAt: DateTime.now()
-        ).toJson()
-    );
+  await HistoryRepository().addBookHistory(bookId);
   }
 
 

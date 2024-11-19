@@ -1,12 +1,17 @@
 import 'dart:io';
+import 'package:blur/blur.dart';
 import 'package:flutter/foundation.dart';
 import 'package:grimoire/app/feedback_screen.dart';
 import 'package:grimoire/app/privacy-policy.dart';
 import 'package:grimoire/app/terms_of_service.dart';
 import 'package:grimoire/auth/log_out_dialog.dart';
 import 'package:grimoire/auth/sign_in_screen.dart';
+import 'package:grimoire/local/downloaded_index_screen.dart';
 import 'package:grimoire/local/local_books_index_screen.dart';
 import 'package:grimoire/management/management_index_screen.dart';
+import 'package:grimoire/tablet/tablet_view.dart';
+import 'package:line_icons/line_icon.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:store_redirect/store_redirect.dart';
 
 import 'package:easy_url_launcher/easy_url_launcher.dart';
@@ -30,17 +35,19 @@ import '../auth/auth_service.dart';
 import '../commons/ads/ads_helper.dart';
 import '../commons/ads/ads_view.dart';
 import '../commons/views/dictionary_view.dart';
+import '../constant/CONSTANT.dart';
+import '../home_books/book_detail_screen.dart';
 import '../read/markdown_screen.dart';
 import '../commons/views/not_for_web.dart';
-import '../commons/views/web_screen.dart';
 import '../models/book_model.dart';
 import '../publish/publish_write_edit_screen.dart';
 import '../search_and_genre/search_index_screen.dart';
+import 'ads_mine_view.dart';
 import 'history_index_screen.dart';
 import 'package:launch_app_store/launch_app_store.dart';
 class AppIndexScreen extends StatefulWidget {
-  const AppIndexScreen({super.key});
-
+  const AppIndexScreen({super.key,this.iconSize = 22});
+  final double iconSize;
   @override
   State<AppIndexScreen> createState() => _AppIndexScreenState();
 }
@@ -51,7 +58,9 @@ class _AppIndexScreenState extends State<AppIndexScreen> {
       builder:(context,c,child)=> ListTile(
         onTap:v.onTap,
         leading: Icon(v.icon,
-          // color: v.iconColor,
+          color: Colors.white70,
+          size: widget.iconSize,
+
         ),
         title: Row(
           children: [
@@ -59,8 +68,11 @@ class _AppIndexScreenState extends State<AppIndexScreen> {
               child: Text(v.title,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.montserrat(
-                fontSize: 12
-              ),),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700
+                    ,
+                    color: Colors.white70
+                ),),
             ),
             //   color:c.isLightMode? Colors.black54:Colors.white54,),
 
@@ -78,7 +90,7 @@ class _AppIndexScreenState extends State<AppIndexScreen> {
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color:c.isLightMode? Colors.grey[50]:Colors.black
+              color:Colors.white12
           ),
           child: Column(children: listOfTab.map((v){
             return listTile(v);
@@ -91,111 +103,102 @@ class _AppIndexScreenState extends State<AppIndexScreen> {
   @override
   Widget build(BuildContext context) {
     return  Consumer<MainController>(
-      builder:(context,c,child)=> Stack(
-        children: [
-          Container(
-            height: 200,
+      builder:(context,c,child)=> Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            Image.asset("assets/book_cover.png",
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
 
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-
-                  center: Alignment.topLeft,
-
-                  stops: [100,100,200],
-                  colors: [
-
-                    Colors.purple.shade50,
-                    Colors.blue.shade50,
-                    Colors.green.shade50,
-
-
-                  ]
-              ),
-
+              fit: BoxFit.fitHeight,).blurred(
+                blur: 10,
+                blurColor: Colors.black45
             ),
-          ),
-          NestedScrollView(
-            headerSliverBuilder: (_,__)=>[
-              SliverAppBar(
-                automaticallyImplyLeading: false,
-                snap: true,
-                floating: true,
+            NestedScrollView(
+              headerSliverBuilder: (_,__)=>[
+                SliverAppBar(
+                  automaticallyImplyLeading: false,
+                  snap: true,
+                  floating: true,
 
-                forceMaterialTransparency: true,
-                shadowColor: Colors.transparent,
-                toolbarHeight: 70,
-                title:Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      // onTap: (){goto(context, SignUpScreen(editing: true,));},
-                      child: CircleAvatar(
-                        backgroundImage: NetworkImage(
-                            FirebaseAuth.instance.currentUser!.photoURL ??""
+                  forceMaterialTransparency: true,
+                  shadowColor: Colors.transparent,
+                  toolbarHeight: 70,
+                  title:Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        // onTap: (){goto(context, SignUpScreen(editing: true,));},
+                        child: CircleAvatar(
+                          backgroundImage: NetworkImage(
+                              FirebaseAuth.instance.currentUser!.photoURL ??""
+                          ),
                         ),
                       ),
-                    ),
 
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 19.0),
-                        child: Text(FirebaseAuth.instance.currentUser!.displayName??"",
-                          overflow: TextOverflow.fade,
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 19.0),
+                          child: Text(FirebaseAuth.instance.currentUser!.displayName??"",
+                            overflow: TextOverflow.fade,
 
-                          style: GoogleFonts.montserrat(
-                              fontWeight: FontWeight.w800,
-                              color: Colors.black,
-                              fontSize: 15
-                          ),),
-                      ),
-                    )
-                  ],
-                ),
-
-              ),
-            ],
-            body: Stack(
-
-              children: [
-
-
-
-                SafeArea(
-                  child: Scaffold(
-                    backgroundColor: Colors.transparent,
-
-                    body: ListView(
-                      children: [
-                        listTileColumn(listOfCollections(context)),
-                        listTileColumn(listOfInApp(context)),
-                        notForWeb(child: listTileColumn(listOfGoogleTabs(context))),
-                        listTileColumn(listOfApp(context)),
-                        SizedBox(height: 50,),
-
-                        Column(children: [
-                          TextButton(onPressed: (){
-                            showDialog(context: context, builder: (context){
-                              return logoutDialog(context);
-                            });
-                          }, child: Text("Log Out",
-                          style: GoogleFonts.merriweather(
-                            color: Colors.red.shade900,
-                            fontWeight: FontWeight.w900
-                          ),))
-                        ],),
-                        SizedBox(height: 250,)
-                      ],
-                    ),
-                    bottomNavigationBar: adaptiveAdsView(
-                    AdHelper.getAdmobAdId(adsName:Ads.addUnitId7)
-
-                    ),
+                            style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                fontSize: 15
+                            ),),
+                        ),
+                      )
+                    ],
                   ),
+
                 ),
               ],
+              body: Stack(
+
+                children: [
+
+
+
+                  SafeArea(
+                    child: Scaffold(
+                      backgroundColor: Colors.transparent,
+
+                      body: ListView(
+                        children: [
+                          listTileColumn(listOfCollections(context)),
+                          listTileColumn(listOfInApp(context)),
+                          listTileColumn(listOfGoogleTabs(context)),
+                          listTileColumn(listOfLinksTabs(context)),
+                          listTileColumn(listOfApp(context)),
+                          SizedBox(height: 50,),
+
+                          Column(children: [
+                            TextButton(onPressed: (){
+                              showDialog(context: context, builder: (context){
+                                return logoutDialog(context);
+                              });
+                            }, child: Text("Log Out",
+                              style: GoogleFonts.montserrat(
+                                  color: Colors.red.shade900,
+                                  fontWeight: FontWeight.w900
+                              ),))
+                          ],),
+                          SizedBox(height: 250,)
+                        ],
+                      ),
+                      bottomNavigationBar: adaptiveAdsView(
+                          AdHelper.getAdmobAdId(adsName:Ads.addUnitId7)
+
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -206,38 +209,39 @@ List<tab> listOfCollections (BuildContext   context)=> [
 
 
 ];
-List<tab> listOfInApp (BuildContext   context)=> [
+List<tab> listOfInApp (BuildContext   context,{bool isTablet = false})=> [
 
-  if(!kIsWeb && kDebugMode) tab(title: "History",      onTap: (){
-    goto(context, HistoryIndexScreen());
+   tab(title: "History",      onTap: (){
+    if(!isTablet) goto(context, HistoryIndexScreen());
+    else ggoto(context, 1);
 
   },
       icon: Icons.history),
- if(!kIsWeb && kDebugMode) tab(title: "Local Books",      onTap: (){
-    goto(context, LocalBooksIndexScreen());
-
-  },
-      icon: Icons.download_outlined),
-
-
-  tab(title: "Publish Book",      onTap: (){
-    goto(context, MyBooksIndexScreen());
-
-  },
+  // if(!kIsWeb) tab(title: "Local Books",      onTap: (){
+  //    goto(context, LocalBooksIndexScreen());
   //
-      icon: Icons.upload_outlined),
+  //  },
+  //      icon: Icons.download_outlined),
+
+
+  tab(title: "Downloads",      onTap: () {
+    if (!isTablet)
+      goto(context, DownloadedIndexScreen());
+    else
+      ggoto(context, 5);
+  },
+      icon: Icons.download_done_sharp),
+
   // tab(title: "Find Authors",      onTap: (){},
   //     icon: Icons.person_2_outlined),
 
-  tab(title: "Find Books",      onTap: (){
-    goto(context,SearchResultScreen());
+  tab(title: "Search ",      onTap: (){
+    if(!isTablet) goto(context,SearchResultScreen());
+    else  ggoto(context, 3);
+
   },
       icon: Icons.search),
 
-  tab(title: "Dictionary Word Search",      onTap: (){
-    goto(context,DictionaryView(searchText: "grimoire"));
-  },
-      icon: Icons.menu_book_outlined),
   // tab(title: "Share Books Offline",      onTap: (){
   //   // goto(context, ShareBooksIndexScreen());
   // },
@@ -252,34 +256,59 @@ List<tab> listOfInApp (BuildContext   context)=> [
   //
   //     icon:Icons.dark_mode_outlined),
   tab(
-    iconColor: Colors.green.shade900,
-      icon: Icons.upload_outlined,
-      title: "Upgrade",
-  onTap: ()async{await rateUs();}),
+      iconColor: Colors.green.shade900,
+      icon: Icons.android_outlined,
+      title: kIsWeb?"Install App":"Update App",
+      onTap: ()async{await rateUs("com.blueishincolour.grimoire");}),
   tab(title: "Rate Us",
       iconColor: Colors.amber.shade900,
       icon: Icons.star_outline,
-      onTap: ()async{await rateUs();}
+      onTap: ()async{await rateUs("com.blueishincolour.grimoire");}
+  ), 
+tab(title: "Buy Us a Coffee",
+iconColor: Colors.amber.shade900,
+icon: EneftyIcons.coffee_outline,
+onTap: ()async{await EasyLauncher.url(url: "https://www.buymeacoffee.com/grimoire_live",
+mode: Mode.externalApp);}
+),
+  tab(title: "Publish Book",      onTap: ()async{
+   await  rateUs("com.blueishincolour.grimoire_creators");
+
+  },
+      //
+      icon: Icons.upload_outlined),
+
+
+];
+List<tab> listOfLinksTabs(BuildContext context) => [
+  tab(
+      onTap: ()async{
+        showToast("Opening whatsapp");
+        await EasyLauncher.sendToWhatsApp(phone: librarianNumber,message:"Hi");
+      },
+      title: "Chat Librarian",
+      icon: LineIcons.whatSApp,
+      iconColor: Colors.teal
   ),
   tab(
       onTap: ()async{
         await EasyLauncher.email(email: "blueishincolour@gmail.com",subject: "Feedback");
-        //
+//
       },
       title: "Feedback",
       icon: Icons.chat_bubble_outline,
       iconColor: Colors.teal
 
-    //hand shake
-  ),
-  // tab(title: "Improve & Design Grimoire",
-  //     iconColor: Colors.amber.shade900,
-  //     icon: Icons.color_lens_outlined,
-  //     onTap: (){rateUs();}
-  // ),
-
-];
-List<tab> listOfLinksTabs(BuildContext context) => [
+//hand shake
+  ), tab(
+      onTap: ()async{
+        await EasyLauncher.email(email: "blueishincolour@gmail.com",subject: "Reporting a Bug");
+//
+      },
+      title: "Report Bug",
+      icon: Icons.bug_report_outlined,
+      iconColor: Colors.teal
+  )
 ];
 
 
@@ -289,19 +318,14 @@ List<tab> listOfApp(BuildContext   context) =>[
   //     iconColor: Colors.black,      onTap: (){},
   //
   //     icon:Icons.sms_outlined),
-  if(isManagement) tab(title: "Management",
-      icon: Icons.settings_outlined,
-      onTap: (){
-    goto(context, ManagementIndexScreen());
-      }),
   tab(title: "Privacy Policy",
       icon:Icons.privacy_tip_outlined,
 
       onTap: ()async{
-    await EasyLauncher.url(url: "https://grimoire.live/policy",mode: Mode.externalApp);
-    // goto(context, MarkdownScreen(data: privacyPolicy));
-    // goto(context, WebScreen(URL: "https://grimoire.live/privacy-policy",));
-    },
+        await EasyLauncher.url(url: "https://grimoire.live/policy",mode: Mode.externalApp);
+        // goto(context, MarkdownScreen(data: privacyPolicy));
+        // goto(context, WebScreen(URL: "https://grimoire.live/privacy-policy",));
+      },
       iconColor: Colors.deepOrange
     //scroll note
   ),
@@ -313,7 +337,7 @@ List<tab> listOfApp(BuildContext   context) =>[
         // goto(context, MarkdownScreen(data: termsOfService));
         //
         // goto(context, WebScreen(URL: "https://grimoire.live/terms-of-sevice",));
-        },
+      },
       title: "Terms Of Service",
       icon: Icons.handshake_outlined,
       iconColor: Colors.teal
@@ -355,10 +379,10 @@ class tab{
   tab({
     required this.title,
     this.child,
-   required this.onTap,
+    required this.onTap,
     this.icon = Icons.star,
     this.iconColor = Colors.blue
-});
+  });
   String title;
   Widget? child;
   Function() onTap;
@@ -398,14 +422,21 @@ class tab{
 //     }}
 // }
 
-rateUs()async{
- await LaunchReview.launch(
-     androidAppId: "com.blueishincolour.grimoire",
-      // iOSAppId: "585027354",
- showToast: false,
- writeReview: false);}
+rateUs(String id )async{
+ if(kIsWeb){
+   await EasyLauncher.url(url: "https://play.google.com/store/apps/details?id=$id"
+       ,mode: Mode.externalApp);
+ }
 
-  openUrlLink({String url  = "https://blueishincolour.github.io/grimiore/"})async{
-await
+   else {
+   await LaunchReview.launch(
+       androidAppId: id,
+       // iOSAppId: "585027354",
+       showToast: false,
+       writeReview: false);
+ }}
+
+openUrlLink({String url  = "https://blueishincolour.github.io/grimiore/"})async{
+  await
   EasyLauncher.url(url: url,mode: Mode.externalApp);
-  }
+}

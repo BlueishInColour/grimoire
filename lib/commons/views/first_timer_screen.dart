@@ -59,39 +59,40 @@ class _FirstTimerScreenState extends State<FirstTimerScreen> {
                         .size
                         .width,
                     children: [
-                      image(image: Svg("assets/image8.svg"), text: "Novels & More at 'Ur Fingertip"),
-                      // image(image: Svg("assets/image5.svg"), text: "Never miss a story even at tea time"),
-                      image(image: Svg("assets/image1.svg"),text: "Join the growing community"),
+                      image(image: Svg("assets/image2.svg"), text: "Never miss a good Novel"),
+                      image(image: Svg("assets/image5.svg"),text: "Join the growing community"),
 
-                      image(image: Svg("assets/image3.svg"), text: "capture creativity, write your story from your perspective"),
-                      // image(image: Svg("assets/image4.svg"), text: "own your own space story-telling medium for free"),
-                      image(image: Svg("assets/image2.svg"), text: "monitize your content"),
+                      image(image: Svg("assets/image6.svg"), text: "capture creativity, write your story from your perspective"),
+                      // image(image: Svg("assets/imge2.svg"), text: "monitize your content"),
                       // image(image: Svg("assets/image6.svg"),text: "write and share at your own pace"),
-                      Column(
+                      Stack(
                         children: [
-                          Expanded(child: image(image: Svg("assets/image7.svg"), text: "All at your comfort")),
-                          BottomBar(
-                            child:(fontSize,iconSize)=>
-                                TextButton.icon(onPressed: (){
-    Navigator.pushReplacement(context, PageRouteBuilder(pageBuilder: (context,_,__){
-    return  AuthGate(isSignedInChild: MainApp(), isNotSignedInChild: SignInScreen());
-    }));}
+                          Expanded(child: image(image: Svg("assets/image8.svg"), text: "All at your fingertip")),
+                          Positioned(
+                            bottom: 20,left: 0,right: 0,
+                            child: BottomBar(
+                              backgroundColor: colorRed,
+                              child:(fontSize,iconSize)=>
+                                  TextButton.icon(onPressed: (){
+                           gotoReplace(context,  AuthGate(isSignedInChild: MainApp(), isNotSignedInChild: SignInScreen(child:MainApp() ,)));
+                                    }
 
-    , icon: Text("Continue",
-                            style: GoogleFonts.merriweather(
-                              fontWeight: FontWeight.w800,
-                              fontSize: fontSize,
-                              color: Colors.white70
-                            ),),
-                            label: Icon(Icons.arrow_forward,color: Colors.white70,size: iconSize,),),
+                                , icon: Text("Continue",
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w900,
+                                fontSize: fontSize,
+                                color: Colors.white70
+                              ),),
+                              label: Icon(Icons.arrow_forward,color: Colors.white70,size: iconSize,),),
 
+                            ),
                           ),
                           SizedBox(height: 100,)
                         ],
                       ),
 
                     ],
-                    indicatorColor: Colors.amber,
+                    indicatorColor:colorRed,
                     indicatorBackgroundColor: Colors.grey[700],
 
 
@@ -108,16 +109,20 @@ class _FirstTimerScreenState extends State<FirstTimerScreen> {
 }
 
 
-Widget image({required ImageProvider<Object> image,String text = "binge short stories"}){
+Widget image({required ImageProvider<Object> image,String text = "binge short stories",Color textColor = Colors.black}){
   return Column(
     mainAxisAlignment: MainAxisAlignment.spaceAround,
     children: [
-      Text(text,
-        style: GoogleFonts.merriweather(
-          fontSize: 30,
-          fontWeight: FontWeight.w900,
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(text,
+          style: GoogleFonts.montserrat(
+            fontSize: 30,
+            fontWeight: FontWeight.w800,
+            color: textColor
 
-        ),),
+          ),),
+      ),
 
       Container(
         child: Image(image: image),

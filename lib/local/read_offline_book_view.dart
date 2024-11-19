@@ -54,7 +54,7 @@ class _ReadOfflineBookViewState extends State<ReadOfflineBookView>  with TickerP
 
             ///
             ///
-            StoryPlayer(bookId:"",stories: [StoryModel(title: story.title,storyId: story.id,bookId: story.bookId,storyCoverImageUrl: "",content: story.content)],)
+            StoryPlayer(bookId:"", story:  StoryModel(title: story.title,storyId: story.id,bookId: story.bookId,storyCoverImageUrl: "",content: story.content),book: BookModel(),)
           ])])
       ,
       bottomNavigationBar:  adaptiveAdsView(

@@ -10,7 +10,6 @@ import 'package:language_picker/languages.g.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../constant/CONSTANT.dart';
-import '../chat/chat_screen.dart';
 import '../commons/views/book_list_item.dart';
 import '../home_books/book_detail_screen.dart';
 import '../models/book_model.dart';
@@ -111,17 +110,6 @@ class _PublishWriteEditScreenState extends State<PublishWriteEditScreen> {
                             icon: Icon(Icons.image_outlined),
                             label: Text(c.bookCoverPhotoPath),),
                           SizedBox(height: 10,),
-                          TextButton.icon(
-                              icon: Icon(Icons.color_lens_outlined),
-                              onPressed: (){
-                                goto(context, ChatScreen(
-                                  email: "blueishincolor@gmail.com",
-                                  messageText:"Yo! I need a professional Book Cover for my book, Let's chat!",
-
-                                  showMessageBar: true,));
-                              },
-                              label: Text("Get Professional Book Cover Art")),
-                          //select book
                         ],
                       ),
                     ),
@@ -255,7 +243,9 @@ class _PublishWriteEditScreenState extends State<PublishWriteEditScreen> {
                   dropdownMenuEntries: [
                     Status.Drafted,
                     Status.Private,
-                    Status.Review
+                    Status.Review,
+                    Status.Scheduled
+
                   ].map((v){
                     return DropdownMenuEntry(value: v, label:v==Status.Review?"Publish": v.name,);
                   }).toList(),

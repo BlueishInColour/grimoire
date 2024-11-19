@@ -4,7 +4,6 @@ import 'package:date_time_format/date_time_format.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:grimoire/chat/user_info_tile.dart';
 
 import '../commons/views/load_widget.dart';
 import '../commons/views/paginated_view.dart';
@@ -87,7 +86,7 @@ bool showTextField = false;
                             }
                         ),
                             Row(children: List.generate(5, (v){return
-                              Icon(Icons.star,color: v<=review.ratingsCount?Colors.amber:Colors.grey,);
+                              Icon(Icons.star,color: v<=review.ratingsCount?Colors.amber:Colors.grey,size: 12,);
                             }),),
                           ],
                         ),

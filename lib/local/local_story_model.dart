@@ -30,6 +30,10 @@ class LocalStoryModel {
   @HiveField(7)
   final int? part;
 
+  @HiveField(8)
+  final String? bookCoverImageUrl;
+
+
 
 
   LocalStoryModel({
@@ -40,6 +44,7 @@ class LocalStoryModel {
     required this.category,
     required this.content,
     required this.date,
+    required this.bookCoverImageUrl,
      this.part =1
   }) : id = id ?? const Uuid().v4();  // Generate UUID only if id is not provided
 }

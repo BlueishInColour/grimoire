@@ -30,6 +30,8 @@ class StoryModel  {
   String content;
 
   bool private;
+  int chapterIndex = 0;
+
   DateTime createdAt  = DateTime.now();
   DateTime? updatedBy =DateTime.now();
 

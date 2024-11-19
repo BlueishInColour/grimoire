@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/foundation.dart';
@@ -6,19 +7,24 @@ import 'package:flutter_masonry_view/flutter_masonry_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grimoire/commons/views/book_list_item.dart';
 import 'package:grimoire/commons/views/dictionary_view.dart';
+import 'package:grimoire/constant/CONSTANT.dart';
 import 'package:grimoire/home_books/book_detail_screen.dart';
 import 'package:grimoire/main.dart';
 import 'package:provider/provider.dart';
-import '../chat/chat_screen.dart';
 import '../commons/views/book_grid_item.dart';
 import '../commons/views/bottom.dart';
+import '../commons/views/load_widget.dart';
 import '../commons/views/paginated_view.dart';
 import '../main_controller.dart';
 import '../models/book_model.dart';
+import '../models/user.dart';
+import '../repository/follow_repository.dart';
+import '../repository/user_repository.dart';
+import '../tablet/tablet_ui_controller.dart';
 
 class SearchResultScreen extends StatefulWidget {
-  const SearchResultScreen({super.key,this.searchText ="Werewolf"});
-
+  const SearchResultScreen({super.key,this.isTablet =false,this.searchText =""});
+final bool isTablet;
   final String searchText;
   @override
   State<SearchResultScreen> createState() => _SearchResultScreenState();
@@ -35,7 +41,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> with TickerProv
     // TODO: implement initState
 
     super.initState();
-    tabController = TabController(length:kDebugMode? 3:2, vsync: this);
+    tabController = TabController(length: 3, vsync: this,initialIndex: 0);
     controller.text = widget.searchText;
     searchText = widget.searchText;
   }
@@ -46,13 +52,42 @@ class _SearchResultScreenState extends State<SearchResultScreen> with TickerProv
     return Consumer<MainController>(
       builder:(context,c,child)=> Scaffold(
         appBar: AppBar(
-          title: TabBar(
+          title:
+          SearchBar(
+            autoFocus: true,
+
+            controller: controller,
+            onChanged: (v){setState(() {
+              searchText = v;
+            });},
+
+            hintText: "search",
+
+
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.search,
+            trailing:[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: IconButton(
+                  onPressed: (){
+                  },
+                  icon: Icon(Icons.search,
+                    color:searchText.isNotEmpty?colorRed: Colors.black54,
+                  ),
+                ),
+              )
+            ],
+
+
+          ),
+          bottom: TabBar(
             isScrollable: true,
               controller: tabController,
 
               tabs: [
             Tab(text: "Books",),
-                if(kDebugMode)    Tab(text: "Authors",),
+                Tab(text: "Writers",),
             Tab(text: "Dictionary",),
           ]),
         ),
@@ -65,6 +100,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> with TickerProv
                     controller: tabController,
                     children: [
                   paginatedView(
+                    key:Key(searchText),
                       query: FirebaseFirestore.instance.collection('library').where(
                           'searchTags',
                           arrayContainsAny: searchText.split(' ')) ,
@@ -74,100 +110,65 @@ class _SearchResultScreenState extends State<SearchResultScreen> with TickerProv
                         BookModel book  = books[index];
                         return BookListItem(
 
-                            title: book.title,
-                            aboutBook: book.aboutBook,
-                            size: 10,onTap: (){},imageUrl: book.bookCoverImageUrl, book: book, id:book.bookId);
+                            size: 10,onTap: (){},
+                            book: book);
                       }),
 
 
-                      if(kDebugMode)
-                        paginatedView(
-                      query: FirebaseFirestore.instance.collection('user').where(
-                          'searchTags',
-                          arrayContainsAny: widget.searchText.split(' ').map((v){if(v.length > 2) return v;}).toList()) ,
-                      child: (datas,index){
-                        List<BookModel> books = datas.map((v){return BookModel.fromJson(v.data() as Map<String,dynamic>);}).toList();
-                        BookModel book  = books[index];
-                        return BookListItem(onTap: (){},imageUrl: book.bookCoverImageUrl,
+      StreamBuilder(stream: UserRepository().ref.where("pen_name",isNotEqualTo:searchText).orderBy("pen_name").startAt([searchText]).endAt([searchText+'\uf8ff',]).limit(20).get().asStream()
+          , builder: (context,snapshot){
 
+        if(snapshot.connectionState==ConnectionState.waiting)return loadWidget()       ;
+        else if(snapshot.hasData && snapshot.data != null && snapshot.data!.docs.isNotEmpty){
+          return ListView.builder(
+              itemCount: snapshot.data?.docs.length,
+              itemBuilder: (context,index){
+            User user = User.fromJson(snapshot.data?.docs[index].data() ??{});;
 
-                            book: book, id:book.bookId);
-                      }),
+            return ListTile(
+              leading: CircleAvatar(
+                backgroundImage: CachedNetworkImageProvider(user.profile_picture_url),
+              ),
+              title: Text("@"+user.pen_name),
+              trailing:  CircleAvatar(
+                child: StreamBuilder<bool>(
+                    stream: FollowRepository().isFollowing(user.email_address),
+                    builder: (context, snapshot) {
+                      if(snapshot.hasData && snapshot.data ==true){
+                        return  GestureDetector(
+                            onTap: (){
+                              FollowRepository().unFollowWriter(user.email_address);
+                            },
+                            child: Icon(Icons.done,color: colorBlue,)
+                        );
+                      }
+                      else   return GestureDetector(
+                        onTap: (){
+                          FollowRepository().followWriter(user.email_address);
+                
+                        },
+                        child: Row(
+                          children: [
+                            Icon(Icons.person_add_alt_1_outlined,color: colorBlue,),
+                          ],
+                        ),);}),
+              )
+            );
+          });
+        }
+        else return Image.asset("assets/empty.png");
+      })
+
+      ,
                   DictionaryView(
+                    key: Key(searchText),
                     showSearchBar:false,
                     autoFocus: false,
                     searchText: searchText,
                   )
                 ])
             ),
-            BottomBar(
-              child:(fontSize,iconSize)=> TextField(
-                controller: controller,
-                onChanged: (v){setState(() {
-                  searchText = v;
-                });},
 
-                style: GoogleFonts.merriweather(
-                    fontSize: fontSize,
-                    color: Colors.white70
-                ),
-
-
-                keyboardType: TextInputType.text,
-                textInputAction: TextInputAction.search,
-                onSubmitted: (v){
-                  goto(context, SearchResultScreen(searchText: v,));
-                },
-
-
-
-                cursorHeight: 17,
-                cursorColor: Colors.white,
-
-                decoration: InputDecoration(
-                    contentPadding: EdgeInsets.only(top: 20),
-                    hintText: "search or ask the librarian ...",
-                    hintStyle: GoogleFonts.merriweather(
-                        fontSize: fontSize,
-                        color: Colors.white70
-                    ),
-                    filled: true,
-
-                    fillColor: Colors.transparent,
-                    border: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    errorBorder: InputBorder.none,
-                    disabledBorder: InputBorder.none,
-                    prefixIcon: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: IconButton(
-                          onPressed: (){
-                            goto(context, MainApp());
-                          },
-                          icon: Icon(EneftyIcons.home_2_outline,size: iconSize,color: Colors.white70,)),
-                    ),
-
-                    suffixIcon: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: IconButton(
-                        onPressed: (){
-                          goto(context, ChatScreen(email: "blueishincolour@gmail.com",
-                            messageText:searchText,
-
-                            showMessageBar: true,));
-
-                        },
-                        icon: Icon(searchText.isEmpty?Icons.chat_bubble_outline:Icons.send,
-                          size: iconSize,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    )
-
-                ),
-              ),
-            ),
           ],
         ),
 

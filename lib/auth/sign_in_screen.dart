@@ -1,12 +1,17 @@
 
+import 'package:blur/blur.dart';
+import 'package:easy_url_launcher/easy_url_launcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grimoire/app/privacy-policy.dart';
 import 'package:grimoire/auth/tf.dart';
 import 'package:grimoire/commons/views/bottom.dart';
+import 'package:grimoire/home_books/book_detail_screen.dart';
 import 'package:grimoire/main.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +23,8 @@ import 'auth_service.dart';
 import 'controller/create_user_controller.dart';
 
 class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+  const SignInScreen({super.key, required this.child});
+  final Widget child;
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
@@ -32,16 +38,21 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
   bool seePassword = false;
   bool isLoading = false;
   int selectedIndex = 0;
+  late TabController tabController;
 
+  late AnimationController animatedController;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    tabController = TabController(length: 3, vsync: this);
+    animatedController = AnimationController(vsync: this);
+
   }
 
   Widget loginView() {
     return Consumer<CreateUserController>(
-      builder: (context,c,child)=> Column(
+      builder: (context,c,child)=> ListView(
 
         children: [
           authTextField("email",
@@ -67,36 +78,37 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
                 color: seePassword ? Colors.black : Colors.grey,
               ),
             ),),
-          Row(
-            children: [
-              TextButton(onPressed: () {
-                setState(() {
-                  selectedIndex = 1;
-                });
-              }, child: Text("Sign Up",
-                style: GoogleFonts.merriweather(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 10,
-                    color: Colors.black
-                ),
-              )),
-            ],
-          ),
-          Row(
-            children: [
-              TextButton(onPressed: () {
-                setState(() {
-                  selectedIndex = 2;
-                });
-              }, child: Text("Forgotten Password?",
-                style: GoogleFonts.merriweather(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 10,
-                    color: Colors.black
-                ),
-              )),
-            ],
-          ),
+         forgottenPasswordButton(),
+          SizedBox(height: 15,),
+         agreementText(),
+
+
+         ///
+         GestureDetector(
+             onTap: ()async{
+               c.isLoading = true;
+               try{
+                 c.isLoading = true;
+                 await AuthService().login(
+                     c.email.text, c.password.text,
+                     context, child: SizedBox());
+               }catch(e){
+                 showToast("Email or Password Is Incorrect");
+               }
+               c.isLoading = false;
+
+             },
+
+             child: BottomBar(
+
+                 backgroundColor:c.isWriter? colorBlue:colorRed,
+                 child:(fontSize,iconSize)=> Center(child: Text("Login",style
+                 :GoogleFonts.montserrat(
+                   fontWeight: FontWeight.w800,
+
+
+                 ))))),
+          SizedBox(height: 100,)
 
 
         ],
@@ -106,13 +118,13 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
 
   Widget signUpView() {
     return Consumer<CreateUserController>(
-      builder: (context,c,child)=> Column(
+      builder: (context,c,child)=> ListView(
 
         children: [
           authTextField("Full Name",c.full_name),
 
           SizedBox(height: 10),
-          authTextField("Pen Name (Username)",c.pen_name),
+          authTextField(c.isWriter?"Pen Name ":"Username",c.pen_name),
 
           SizedBox(height: 10),
           authTextField("Email",
@@ -140,7 +152,7 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
             ),),   SizedBox(height: 10),
           authTextField(
             "confirm password",
-            c.password,
+            c.confirm_password,
             obscureText: !seePassword,
             keyboardType: TextInputType.visiblePassword,
             suffix:
@@ -156,35 +168,48 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
               ),
             ),),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              TextButton(onPressed: () {
-                setState(() {
-                  selectedIndex=0;
-                });
-              }, child: Text("Login",
-                style: GoogleFonts.merriweather(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 10,
-                    color: Colors.black
-                ),
-              )),
+              Text("I am a writer",
+              style: GoogleFonts.montserrat(
+                color: Colors.white70,
+                fontWeight: FontWeight.w500
+              ),),
+              Switch(
+                  activeColor: colorBlue,
+                  inactiveTrackColor: Colors.red.shade400,
+                  value: c.isWriter, onChanged: (v){
+                c.isWriter = v;
+              })
             ],
           ),
-          Row(
-            children: [
-              TextButton(onPressed: () {
-                setState(() {
-                  selectedIndex = 2;
-                });
-              }, child: Text("Forgotten Password?",
-                style: GoogleFonts.merriweather(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 10,
-                    color: Colors.black
-                ),
-              )),
-            ],
-          ),
+          forgottenPasswordButton(),
+          SizedBox(height: 15,),
+          agreementText(),
+
+          GestureDetector(
+              onTap: ()async{
+                c.isLoading = true;
+                try{
+                  await AuthService().signup(
+                      c.email.text, c.password.text,
+                      context);
+                await  c.createUser(context,widget.child);
+                }catch(e){
+                  showToast("Unable to sign you up at the moment.");
+                }
+                c.isLoading = false;
+
+              },
+              child: BottomBar(
+                  backgroundColor:c.isWriter? colorBlue:colorRed,
+                  child:(fontSize,iconSize)=> Center(child: Text("Sign Up",
+                  style:GoogleFonts.montserrat(
+                    fontWeight: FontWeight.w800,
+
+
+                  ))))),
+          SizedBox(height: 100,)
 
 
         ],
@@ -201,324 +226,317 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
 
                 emailController, keyboardType:
                 TextInputType.emailAddress),
-            Row(
-              children: [
-                TextButton(onPressed: () {
-                  setState(() {
-                    selectedIndex=0;
-                  });
-                }, child: Text("Login",
-                  style: GoogleFonts.merriweather(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 10,
-                      color: Colors.black
-                  ),
-                )),
-              ],
-            ),
-            Row(
-              children: [
-                TextButton(onPressed: () {
-                  setState(() {
-                    selectedIndex = 1;
-                  });
-                }, child: Text("You don't have an account? Sign Up",
-                  style: GoogleFonts.merriweather(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 10,
-                      color: Colors.black
-                  ),
-                )),
-              ],
-            ),
+            SizedBox(height: 15,),
+            GestureDetector(
+                onTap: ()async{
+                  c.isLoading = true;
+
+                  await AuthService().sendForgottenPasswordEmail(
+                      context, c.email.text);
+                  c.isLoading = false;
+
+                },
+                child: BottomBar(
+                    backgroundColor: colorRed,
+                    child:(fontSize,iconSize)=> Center(child: Text("Send Reset Link",
+                    style:GoogleFonts.montserrat(
+                      fontWeight: FontWeight.w800
+                    )))))
+
 
           ],
         ),
       );}
-Widget build(BuildContext context){
-
-      return Consumer<CreateUserController>(
-        builder:(context,c,child)=> Container(
-          decoration: BoxDecoration(
-
-            gradient: SweepGradient(
-
-                colors: [
-              Colors.purple.shade100,
-              Colors.blue.shade100,
-              Colors.red.shade100,
-              Colors.green.shade100,
-            ])
-          ),
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-
-            body: ListView(
-              children: [
-                SizedBox(height: MediaQuery.of(context).size.height*0.2,),
-                Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Center(
-                    child: Container(
-                      // height: 450,
-                        width: 400,
-                      padding: EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: Colors.white70,
-                        borderRadius: BorderRadius.circular(10),
-
-                      ),
-                      child: Column(
-                        mainAxisAlignment:MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                        children:  [
-                          [
-                            loginView(),
-                            signUpView(),
-                            forgottenPasswordView()
-                          ][selectedIndex],
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              children: [
-
-                                SizedBox(height: 10,),
-                                GestureDetector(
-                                  onTap:  () async {
-                                    if (!isLoading) {
-                                      try {
-                                        setState(() {
-                                          isLoading = true;
-                                        });
-                                        final auth = AuthService();
-                                        if (selectedIndex == 0) {
-                                          await auth.login(
-                                              c.email.text, c.password.text,
-                                              context);
-                                        }
-                                        else if(selectedIndex ==1){
-                                          await AuthService().signup(
-                                              c.email.text, c.password.text,
-                                              context).whenComplete((){
-                                            c.createUser(context);
-                                          });;
-                                        }
-                                        else
-                                          await auth.sendForgottenPasswordEmail(
-                                              context, c.email.text);
-                                      } catch (e) {
-                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                            content: Text(
-                                                "email or password is incorrect  $e")));
-                                      }
-                                    }
-                                    setState(() {
-                                      isLoading = false;
-                                    });
-                                  },
-                                  child: BottomBar(child:(fontSize,iconSize)=> Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                  Text(
-                                  selectedIndex == 0 ? "Login"
-                                  :selectedIndex==1?"Sign up":
-
-                                    "Send Reset Link",
-                                    style: GoogleFonts.merriweather(
-                                        fontWeight: FontWeight.w800,
-                                      color: Colors.white70,
-                                      fontSize: fontSize
-                                    ),),
-
-                                    ],
-                                  )),
-                                ),
-
-                                SizedBox(height: 10,),
-                                Text.rich(TextSpan(
-                                    style: GoogleFonts.merriweather(
-                                      fontSize: 12,
-                                    ),
-                                    children: [
-                                      TextSpan(text: "By continuing, you agree to our"),
-                                      TextSpan(text: " Privacy Policy",
-                                          style: GoogleFonts.merriweather(color: Colors.purple),
-                                          onEnter: (v) {
-                                            goto(context,
-
-                                                MarkdownScreen(data: privacyPolicy));
-                                          }
-                                      ),
-                                      TextSpan(text: " and"),
-                                      TextSpan(text: " Terms of Use",
-                                          style: GoogleFonts.merriweather(color: Colors.purple),
-                                          onEnter: (v) {
-                                            goto(context,
-                                                MarkdownScreen(data: privacyPolicy));
-                                          }
-                                      ),
-                                    ]
-                                )),
-                              ],
-                            ),
-                          ),
-                        ]
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        )
-      );
-    }
+  Widget forgottenPasswordButton(){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        TextButton(onPressed: (){
+          tabController.animateTo(2);
+        }, child: Text("Forgotten Password?",
+        style: GoogleFonts.montserrat(
+          fontWeight: FontWeight.w700,
+          color: Provider.of<CreateUserController>(context).isWriter? colorBlue:colorRed
+        ),)),
+      ],
+    );
   }
-
-// import 'package:flutter/material.dart';
-
-class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key,this.editing = false});
-final bool editing;
-  @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
-}
-
-class _SignUpScreenState extends State<SignUpScreen> {
-
-  bool seePassword = false;
-  bool isLoading = false;
-  int selectedIndex = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return  Consumer<CreateUserController>(
-      builder:(context,c,child)=> Scaffold(
-        appBar:AppBar(),
-        body: Center(
-          child: SizedBox(
-            width: 500,
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 15),
-              child: ListView(
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(radius: 45,
-                        backgroundImage: NetworkImage(c.profilePicture),
-
-                      ),
-                      SizedBox(width: 20,),
-                      IconButton(onPressed: ()async{await c.captureProfilePicture(context, source: ImageSource.camera);},
-                          icon: Icon(Icons.camera_alt_outlined)),
-
-
-                      IconButton(onPressed: ()async{await c.captureProfilePicture(context, source: ImageSource.gallery);},
-                          icon: Icon(Icons.image_outlined)),
-                    ],
-                  ),
-                  authTextField("full name",
-                      c.full_name
-
-                  ),
-
-
-
-                  authTextField("email",
-                      validateEmai: true,
-
-
-                      c.email,keyboardType:
-                      TextInputType.emailAddress),
-
-                  authTextField(
-                    "phone number",
-                    c.phone_number,
-
-                  ),
-                  authTextField(
-                    "home address",
-                    c.home_address,
-
-                  ),
-                  authTextField(
-                    "city",
-                    c.city,
-                  ),
-                  authTextField(
-                    "state/Province",
-                    c.state,
-                  ),
-                  authTextField(
-                    "country",
-                    c.country,
-
-                  ),
-                  SizedBox(height: 15),
-
-
-
-
-               widget.editing?SizedBox.shrink():   authTextField(
-                    "password",
-                    c.password,
-                    obscureText: !seePassword,
-                    keyboardType: TextInputType.visiblePassword,
-                    suffix:
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          seePassword = !seePassword;
-                        });
-                      },
-                      icon: Icon(
-                        Icons.remove_red_eye,
-                        color: seePassword ? Colors.black : Colors.grey,
-                      ),
-                    ),),
-                  widget.editing?SizedBox.shrink():      authTextField(
-                    "confirm password",
-                    c.confirm_password,
-                    obscureText: !seePassword,
-                    keyboardType: TextInputType.visiblePassword,
-                    suffix:
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          seePassword = !seePassword;
-                        });
-                      },
-                      icon: Icon(
-                        Icons.remove_red_eye,
-                        color: seePassword ? Colors.black : Colors.grey,
-                      ),
-                    ),),
-                  SizedBox(height: 10,),
-                  ElevatedButton(
-                      style: ButtonStyle(
-                        minimumSize: WidgetStatePropertyAll(Size(400,50))
-                      ),
-                      onPressed: ()async{
-                    widget.editing?  c.createUser(context):
-
-                    await AuthService().signup(
-                        c.email.text, c.password.text,
-                        context).whenComplete((){
-                      Provider.of<CreateUserController>(context,listen:false).createUser(context);
-                    });;
-                  }, child: Text(widget.editing?"Update":"Sign Up",style: GoogleFonts.merriweather(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800
-                  ),)),
-
-                ],
-              ),
-            ),
+  Widget agreementText(){
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Text.rich(TextSpan(
+          style: GoogleFonts.montserrat(
+            fontSize: 12,
           ),
-        ),
+          children: [
+            TextSpan(text: "By continuing, you agree to our",
+            ),
+            TextSpan(text: " Privacy Policy",
+                style: GoogleFonts.montserrat(color: colorPurple,
+                fontWeight: FontWeight.w600),
+                recognizer: TapGestureRecognizer()..onTap=()=>
+                       EasyLauncher.url(url: "https://grimoire.live/policy",mode: Mode.externalApp)
+            ),
+            TextSpan(text: " and"),
+            TextSpan(text: " Terms of Use",
+                style: GoogleFonts.montserrat(color: colorPurple,
+                    fontWeight: FontWeight.w600),
+    recognizer: TapGestureRecognizer()..onTap=()=>EasyLauncher.url(url: "https://grimoire.live/terms",mode: Mode.externalApp)
+            ),
+          ]
+      ),
+        style: GoogleFonts.montserrat(color: Colors.white70),
 
       ),
     );
-
   }
-}
+Widget build(BuildContext context){
+
+      return Consumer<CreateUserController>(
+        builder:(context,c,child)=> SafeArea(
+          child: Scaffold(
+              backgroundColor: Colors.black,
+            body:Image(
+              fit: BoxFit.fill,
+              image: Svg("assets/image4.svg"),
+              // image: Svg("assets/image2.svg"),
+            ).blurred(
+               blurColor: Colors.black12,
+
+              overlay: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text("Welcome to Grimoire",
+                      style: GoogleFonts.montserrat(
+                          color: Colors.white70,
+                          // fontSize: 30,
+                          fontWeight: FontWeight.w900
+                      ),),
+                    SizedBox(height: 15,),
+                    Text("Novels & More at 'ur Fingertip",
+                      style: GoogleFonts.montserrat(
+                          color: Colors.white,
+                          fontSize: 25,
+                          fontWeight: FontWeight.w800
+                      ),),
+                  ],
+                ),
+              ),
+
+            ),
+            bottomSheet: BottomSheet(
+              onClosing: (){},
+              showDragHandle: true,
+              enableDrag: true,
+              animationController: animatedController,
+              dragHandleColor: Colors.white,
+              dragHandleSize: Size(300, 5),
+              backgroundColor: Colors.black,
+          
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              builder:(context)=> Container(
+                height: MediaQuery.of(context).size.height-300,
+                decoration: BoxDecoration(
+                    color: Colors.black), child: Scaffold(
+                backgroundColor: Colors.transparent,
+                  appBar: AppBar(
+                    foregroundColor: Colors.white70,
+                    centerTitle: true,
+          
+                    title: TabBar(
+                      unselectedLabelColor: Colors.white,
+                      labelColor: c.isWriter? colorBlue:colorRed,
+                      indicatorColor: c.isWriter? colorBlue:colorRed,
+                      isScrollable: false,
+                        tabAlignment: TabAlignment.center,
+          
+                        controller: tabController,
+                        tabs: [
+                      Tab(text: "Login",),
+                          Tab(text: "Sign Up",),
+                          Tab(text: "",),
+          
+                    ]),
+                  ),
+                  body:
+                   Center(
+                        child: SizedBox(
+                          width: 300,
+                          child: TabBarView(
+          
+                            controller: tabController,
+                            children:
+                              [
+                                loginView(),
+                                signUpView(),
+                                forgottenPasswordView()
+                              ]),
+                        ),
+                      ),
+                  ))
+                      ),
+                    ),
+        ),
+
+      );
+    }
+  }
+//
+// // import 'package:flutter/material.dart';
+//
+// class SignUpScreen extends StatefulWidget {
+//   const SignUpScreen({super.key,this.editing = false});
+// final bool editing;
+//   @override
+//   State<SignUpScreen> createState() => _SignUpScreenState();
+// }
+//
+// class _SignUpScreenState extends State<SignUpScreen> {
+//
+//   bool seePassword = false;
+//   bool isLoading = false;
+//   int selectedIndex = 0;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return  Consumer<CreateUserController>(
+//       builder:(context,c,child)=> Scaffold(
+//         appBar:AppBar(),
+//         bottomSheet: BottomSheet(
+//           showDragHandle: true,
+//
+//           onClosing: (){},
+//           builder:(context)=> Container(
+//             decoration: BoxDecoration(
+//               color: Colors.black
+//             ),
+//             width: 500,
+//             height: MediaQuery.of(context).size.height-200,
+//             child: Padding(
+//               padding: EdgeInsets.symmetric(vertical: 15),
+//               child: ListView(
+//                 children: [
+//                   Row(
+//                     children: [
+//                       CircleAvatar(radius: 45,
+//                         backgroundImage: NetworkImage(c.profilePicture),
+//
+//                       ),
+//                       SizedBox(width: 20,),
+//                       IconButton(onPressed: ()async{await c.captureProfilePicture(context, source: ImageSource.camera);},
+//                           icon: Icon(Icons.camera_alt_outlined)),
+//
+//
+//                       IconButton(onPressed: ()async{await c.captureProfilePicture(context, source: ImageSource.gallery);},
+//                           icon: Icon(Icons.image_outlined)),
+//                     ],
+//                   ),
+//                   authTextField("full name",
+//                       c.full_name
+//
+//                   ),
+//
+//
+//
+//                   authTextField("email",
+//                       validateEmai: true,
+//
+//
+//                       c.email,keyboardType:
+//                       TextInputType.emailAddress),
+//
+//                   authTextField(
+//                     "phone number",
+//                     c.phone_number,
+//
+//                   ),
+//                   authTextField(
+//                     "home address",
+//                     c.home_address,
+//
+//                   ),
+//                   authTextField(
+//                     "city",
+//                     c.city,
+//                   ),
+//                   authTextField(
+//                     "state/Province",
+//                     c.state,
+//                   ),
+//                   authTextField(
+//                     "country",
+//                     c.country,
+//
+//                   ),
+//                   SizedBox(height: 15),
+//
+//
+//
+//
+//                widget.editing?SizedBox.shrink():   authTextField(
+//                     "password",
+//                     c.password,
+//                     obscureText: !seePassword,
+//                     keyboardType: TextInputType.visiblePassword,
+//                     suffix:
+//                     IconButton(
+//                       onPressed: () {
+//                         setState(() {
+//                           seePassword = !seePassword;
+//                         });
+//                       },
+//                       icon: Icon(
+//                         Icons.remove_red_eye,
+//                         color: seePassword ? Colors.black : Colors.grey,
+//                       ),
+//                     ),),
+//                   widget.editing?SizedBox.shrink():      authTextField(
+//                     "confirm password",
+//                     c.confirm_password,
+//                     obscureText: !seePassword,
+//                     keyboardType: TextInputType.visiblePassword,
+//                     suffix:
+//                     IconButton(
+//                       onPressed: () {
+//                         setState(() {
+//                           seePassword = !seePassword;
+//                         });
+//                       },
+//                       icon: Icon(
+//                         Icons.remove_red_eye,
+//                         color: seePassword ? Colors.black : Colors.grey,
+//                       ),
+//                     ),),
+//                   SizedBox(height: 10,),
+//                   ElevatedButton(
+//                       style: ButtonStyle(
+//                         minimumSize: WidgetStatePropertyAll(Size(400,50))
+//                       ),
+//                       onPressed: ()async{
+//                     widget.editing?  c.createUser(context):
+//
+//                     await AuthService().signup(
+//                         c.email.text, c.password.text,
+//                         context).whenComplete((){
+//                       Provider.of<CreateUserController>(context,listen:false).createUser(context);
+//                     });;
+//                   }, child: Text(widget.editing?"Update":"Sign Up",style: GoogleFonts.merriweather(
+//                     color: Colors.white,
+//                     fontWeight: FontWeight.w800
+//                   ),)),
+//
+//                 ],
+//               ),
+//             ),
+//           ),
+//         ),
+//
+//       ),
+//
+//     );
+//
+//   }
+// }

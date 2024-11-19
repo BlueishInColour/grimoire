@@ -29,6 +29,7 @@ class BookModel  {
 
     this.approveHardcopyPublishing = false,
     this.language = "",
+    this.languageIsoCode = "en",
 
 
 
@@ -52,9 +53,11 @@ class BookModel  {
   Status status;
   bool approveHardcopyPublishing;
   String language;
+  String languageIsoCode;
 
 
-  String? readHours = "";
+  int timeSpentInMilliSeconds = 0;
+
   int? readerCount = 0;
   int? pages = 0;
 
@@ -100,6 +103,7 @@ enum Status{
   Review,
   Private,
   Drafted,
+  Scheduled,
   Publish,
   Rejected,
   Completed,

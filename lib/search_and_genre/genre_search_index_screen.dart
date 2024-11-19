@@ -6,6 +6,7 @@ import 'package:grimoire/commons/views/book_list_item.dart';
 import 'package:grimoire/models/genre_model.dart';
 
 import '../commons/views/paginated_view.dart';
+import '../constant/CONSTANT.dart';
 import '../models/book_model.dart';
 
 class GenreIndexScreen extends StatefulWidget {
@@ -43,7 +44,9 @@ class _GenreIndexScreenState extends State<GenreIndexScreen>with TickerProviderS
   Widget build(BuildContext context) {
     return  Scaffold(
         backgroundColor: Colors.transparent,
-
+appBar: AppBar(
+  foregroundColor: Colors.white60,
+),
         body: Row(
           children: [
             Container(
@@ -67,40 +70,37 @@ class _GenreIndexScreenState extends State<GenreIndexScreen>with TickerProviderS
                     });
                   }),
             ),
-            Expanded(
-              child:paginatedView(
-                key: Key(widget.currentGenre+currentSubGenre),
-              emptyText: "No Books Yet in ${widget.currentGenre} Section",
-              query:
-              currentSubGenre=="All"? FirebaseFirestore.instance.collection("library").where("category",isEqualTo: widget.currentGenre).where("private",isEqualTo: false)
-                  :currentSubGenre=="Hot"?FirebaseFirestore.instance.collection("library").where("category",isEqualTo: widget.currentGenre).where("private",isEqualTo: false).orderBy("seen",descending: true)
-                  :currentSubGenre=="Latest"?FirebaseFirestore.instance.collection("library").where("category",isEqualTo: widget.currentGenre).where("private",isEqualTo: false).orderBy("createdAt",descending: true)
-                  :FirebaseFirestore.instance.collection("library").where("category",isEqualTo: widget.currentGenre).where("tags",arrayContains: currentSubGenre).where("private",isEqualTo: false)
-
-                  ,//.where("genre",isEqualTo: widget.currentGenre),
-                      child: (datas,index){
-
-                        Map<String,dynamic> json = datas[index].data() as Map<String,dynamic>;
-                        BookModel book = BookModel.fromJson(json);
-
-                        return BookListItem(
-                          book: book,
-              onTap: (){}, id: book.bookId,
-              imageUrl: book.bookCoverImageUrl,
-              size: 8,
-              bookUrl: book.bookUrl,
-              aboutBook: book.aboutBook,
-
-              title: book.title,
-              tags: book.tags,
-              genre:  book.category,
-                        );
-                      }),
-            ),
+           page(widget.currentGenre,currentSubGenre)
           ],
       ),
     );
   }
+}
+
+Widget page(String currentGenre, String currentSubGenre) {
+  return  Expanded(
+    child:paginatedView(
+        key: Key(currentGenre+currentSubGenre),
+        emptyText: "No Books Yet in ${currentGenre} Section",
+        query:
+        currentSubGenre=="All"? FirebaseFirestore.instance.collection("library").where("category",isEqualTo: currentGenre).where("private",isEqualTo: false)
+            :currentSubGenre=="Hot"?FirebaseFirestore.instance.collection("library").where("category",isEqualTo: currentGenre).where("private",isEqualTo: false).orderBy("seen",descending: true)
+            :currentSubGenre=="Latest"?FirebaseFirestore.instance.collection("library").where("category",isEqualTo: currentGenre).where("private",isEqualTo: false).orderBy("createdAt",descending: true)
+            :FirebaseFirestore.instance.collection("library").where("category",isEqualTo: currentGenre).where("tags",arrayContains: currentSubGenre).where("private",isEqualTo: false)
+
+        ,//.where("genre",isEqualTo: widget.currentGenre),
+        child: (datas,index){
+
+          Map<String,dynamic> json = datas[index].data() as Map<String,dynamic>;
+          BookModel book = BookModel.fromJson(json);
+
+          return BookListItem(
+            book: book,
+            onTap: (){},
+            size: 8,
+          );
+        }),
+  );
 }
 
 
@@ -108,7 +108,6 @@ Widget sideButton(
     String title,
     {
       FontWeight fontWeight = FontWeight.w700,
-      Color color = Colors.black,
       double size  = 8,
       bool isSelected = false,
       required void Function()? onPressed
@@ -124,7 +123,7 @@ Widget sideButton(
           height: 10,
           width: 5,
           decoration:BoxDecoration(
-            color: color,
+            color: colorRed,
 
           ) ,
         ),
@@ -135,10 +134,10 @@ Widget sideButton(
             style: ButtonStyle(
                 alignment: Alignment.centerLeft,
                 foregroundColor: WidgetStatePropertyAll(
-                    isSelected?Colors.purple.shade900: color
+                    isSelected?Colors.black: Colors.black87
                 ),
                 textStyle:WidgetStatePropertyAll(
-                  GoogleFonts.merriweather(
+                  GoogleFonts.montserrat(
                       fontSize: size,
                       fontWeight: FontWeight.w700
                   ),
@@ -149,7 +148,7 @@ Widget sideButton(
 
             onPressed:onPressed, child: Text(title,
           overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.merriweather(
+          style: GoogleFonts.montserrat(
 
           ),)),
       ),

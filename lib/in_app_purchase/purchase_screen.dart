@@ -61,7 +61,7 @@ class PurchaseScreen extends StatelessWidget {
                   else if(snapshot.hasData && snapshot.data !=null && snapshot.data ==true) {
                  return    TextButton(
                         onPressed: () async {
-                          await c.buyConsumableProduct(c.products[0].id);
+                          await c.buyConsumableProduct("c.products[0].id");
                         },
                         child: Text(
                           "Buy Premium",

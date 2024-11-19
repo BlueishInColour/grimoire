@@ -6,25 +6,10 @@ String MY_UID  = FirebaseAuth.instance.currentUser?.uid??"";
 
 List<String> categories = [
   "Novels",
-  "Shorts",
-  "Educational",
   "Poetry",
-  "Sport & Leisure",
-  "Religious",
-  "Art & Architecture",
-  "Autobiography/Memoir",
-  "Humor/Jokes",
-  "Craft & Hobbies",
-  "Philosophy",
-  "Cookbooks",
-  "Diaries and Journal",
-  "Dictionary/Encyclopedia",
-  "Historical",
+  "Religion",
   "Biography",
-  "Business/Economics",
-  "Politics",
-  "Travel",
-  "True Crime"
+  "Memoir"
 ];
 
 List<String> languages = [
@@ -33,3 +18,14 @@ List<String> languages = [
   "Turkish",
   "Igbo"
 ];
+
+Color colorRed = Color(0xffff0000);
+Color colorPurple = Color(0xFFf799ff);
+Color colorBlue = Color(0xFF3b54ff);
+
+
+String librarianNumber = '+2348120818487';
+
+double SMALLSIZE = 14;
+double MIDDLESIZE = 25;
+double LARGESIZE = 40;

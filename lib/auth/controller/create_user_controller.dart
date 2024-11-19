@@ -56,6 +56,10 @@ class CreateUserController extends MainController{
   String get  bank_code => _bank_code;
   set bank_code(v){_bank_code = v;notifyListeners();}
 
+  bool _isWriter = false;
+  bool get isWriter => _isWriter;
+  set isWriter(v){_isWriter = v;notifyListeners();}
+
   bool _isLoading = false;
   bool get  isLoading => _isLoading;
   set isLoading(v){_isLoading = v;notifyListeners();}
@@ -71,7 +75,7 @@ class CreateUserController extends MainController{
   getPhoto(BuildContext context)async{
   }
 
-  createUser(context)async{
+  createUser(context,Widget child)async{
     isLoading = true;
     User user = User(
       country: country.text,
@@ -79,8 +83,11 @@ class CreateUserController extends MainController{
       city: city.text,
       full_name: full_name.text,
       pen_name:pen_name.text,
+
       phone_number: phone_number.text,
       email: email.text,
+
+      isWriter: isWriter,
 
       home_address: home_address.text,
       profile_picture_url: profilePicture,
@@ -90,7 +97,7 @@ class CreateUserController extends MainController{
     await FirebaseAuth.instance.currentUser!.updatePhotoURL(profilePicture);
 
    await userRepo.setUser(user: user, isCompleted: (){
-     Navigator.push(context, PageRouteBuilder(pageBuilder: (context,_,__)=>MainApp()));
+     // Navigator.push(context, PageRouteBuilder(pageBuilder: (context,_,__)=>child));
      ;isLoading = false;});
   }
 
@@ -107,6 +114,8 @@ class CreateUserController extends MainController{
 
       phone_number.text = user.phone_number;
       email.text = user.email;
+
+
 
       home_address.text = user.home_address;
       profilePicture = user.profile_picture_url;

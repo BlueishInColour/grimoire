@@ -4,17 +4,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grimoire/app/ads_mine_view.dart';
 import 'package:grimoire/app/feedback_screen.dart';
 import 'package:grimoire/commons/views/bottom.dart';
 import 'package:grimoire/constant/CONSTANT.dart';
 import 'package:grimoire/management/categories_screen.dart';
-import 'package:grimoire/management/chats_screen.dart';
 import 'package:grimoire/management/review_books_screen.dart';
 import 'package:grimoire/management/review_lists_screen.dart';
 import 'package:grimoire/management/users_screen.dart';
 import 'package:grimoire/search_and_genre/genre_search_index_screen.dart';
 import 'package:grimoire/search_and_genre/search_result_screen.dart';
-import '../chat/chat_screen.dart';
 import '../commons/ads/ads_helper.dart';
 import '../commons/ads/ads_view.dart';
 import '../main.dart';
@@ -35,7 +34,7 @@ class _ManagementIndexScreenState extends State<ManagementIndexScreen> with Tick
     // TODO: implement initState
     super.initState();
     tabController  = TabController(length: managementTabs.length ,
-        vsync: this);
+        vsync: this,initialIndex: 1);
   }
   @override
 
@@ -65,8 +64,8 @@ class _ManagementIndexScreenState extends State<ManagementIndexScreen> with Tick
         body:TabBarView(
             controller: tabController,
             children: [
+              AdsMineView(),
               UsersScreen(),
-              ChatsScreen(),
               ReviewBooksScreen(),
               ReviewListsScreen(),
               // Text("Review Stories"),
@@ -85,8 +84,8 @@ class _ManagementIndexScreenState extends State<ManagementIndexScreen> with Tick
   }
 }
 List<String> managementTabs = [
+  "Ads Mine",
   "Users",
-  "Chats",
   "Review Books",
   "Review Lists",
   // "Review Stories",

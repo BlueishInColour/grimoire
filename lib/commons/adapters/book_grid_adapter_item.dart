@@ -4,17 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grimoire/commons/views/book_grid_item.dart';
 import 'package:grimoire/commons/views/book_list_item.dart';
+import 'package:grimoire/constant/CONSTANT.dart';
 import 'package:grimoire/home_books/book_detail_screen.dart';
 import 'package:grimoire/main.dart';
+import 'package:grimoire/repository/like_repository.dart';
 
 import '../../models/book_model.dart';
 import '../views/load_widget.dart';
 
 class BookGridAdapterItem extends StatefulWidget {
-  const BookGridAdapterItem({super.key,this.onTap,required this.bookId,required this.size});
+  const BookGridAdapterItem({super.key,required this.onTap,required this.bookId,required this.size});
   final String bookId;
   final double size;
-  final  dynamic Function()? onTap;
+  final  dynamic Function(BookModel) onTap;
   @override
   State<BookGridAdapterItem> createState() => _BookGridAdapterItemState();
 }
@@ -32,26 +34,57 @@ class _BookGridAdapterItemState extends State<BookGridAdapterItem> {
             {return Stack(
               children: [
                 ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: Image.asset("assets/book_cover.png",height: 16*widget.size,width: 9*widget.size,)),
+                    child: image(context,"", widget.size)),
               ],
             );}
             else if(snapshot.hasData&& snapshot.data?.data()?.isNotEmpty != null){
               BookModel book = BookModel.fromJson(snapshot.data?.data()??{});
 
+              if(book.status != Status.Publish) return Stack(
+                children: [
+                  image(
+                    context,
+                    book.bookCoverImageUrl,
+                    MIDDLESIZE
+                  ),
+                  Positioned(
+                    top: 5,left: 0,right: 0,
+                    child: Center(child: Text("Un - published",
+                    style: GoogleFonts.montserrat(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 10,
+                      backgroundColor: Colors.white38,
+
+                    ),)),
+                  )
+                ],
+              );
               return BookGridItem(
-                onTap:widget.onTap, book: book, id: book.bookId,imageUrl: book.bookCoverImageUrl,size: widget.size,);
+                subCategories: book.subCategory,
+                onDoubleTap: ()async{
+                  showToast("Liked");
+                  bool isLiked = await  LikeRepository().isLiked(book.bookId);
+                  if(isLiked){
+                   await LikeRepository().unLikeBook(book.bookId);
+                  }
+                  else{
+                    await LikeRepository().likeBook(book.bookId);
+
+                  }
+                },
+                onTap:()=>widget.onTap(book), book: book, id: book.bookId,imageUrl: book.bookCoverImageUrl,size: MIDDLESIZE,);
             }
             else return Stack(
               children: [
                 ClipRRect(
                     borderRadius: BorderRadius.circular(4),
-                    child: Image.asset("assets/book_cover.png",height: 16*widget.size,)),
-             Positioned(
-                 bottom: 5,
-                 left: 0,
-                 right: 0,
-                 child: Icon(Icons.error,color: Colors.white70,size: 12,))
+                    child: image(context,"",widget.size)),
+             // Positioned(
+             //     bottom: 5,
+             //     left: 0,
+             //     right: 0,
+             //     child: Icon(Icons.error,color: Colors.white70,size: 12,))
               ],
             );
           }),

@@ -23,7 +23,7 @@ class _LocalBooksIndexScreenState extends State<LocalBooksIndexScreen> with Tick
   void initState() {
     // TODO: implement initState
     super.initState();
-    tabController = TabController(length: 5, vsync: this,initialIndex: 0);
+    tabController = TabController(length: 6, vsync: this,initialIndex: 0);
   }
   @override
   Widget build(BuildContext context) {

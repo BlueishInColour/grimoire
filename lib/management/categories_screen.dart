@@ -74,11 +74,20 @@ createGenre()async{
     return Scaffold(
       appBar: AppBar(
         title: TextField(
+          onSubmitted: (v)async{
+            await  FirebaseFirestore.instance.collection("genre").doc(widget.currentGenre).update(
+                {"subGenres":FieldValue.arrayUnion([v])
+
+                }).whenComplete((){
+              textController.clear();
+            });
+          },
           controller: textController,
           decoration: InputDecoration(
               fillColor: Colors.grey.shade100,
               filled: true,
             hintText: "Enter new sub category",
+
             suffixIcon: IconButton(onPressed: ()async{
             await  FirebaseFirestore.instance.collection("genre").doc(widget.currentGenre).update(
                   {"subGenres":FieldValue.arrayUnion([textController.text])

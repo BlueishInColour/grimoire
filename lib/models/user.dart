@@ -19,6 +19,8 @@ class User{
      this.phone_number="",
      this.email = "",
 
+     this.isWriter = false,
+
      this.account_number="",
      this.account_name = "",
      this.bank_name=""
@@ -38,6 +40,8 @@ class User{
   String city;
   String state;
   String country;
+
+  bool isWriter;
 
   String bank_name;
   String account_name;

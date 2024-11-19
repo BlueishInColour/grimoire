@@ -32,10 +32,14 @@ class MainController extends ChangeNotifier {
 // baseDirectory();
   }
 
+  int _openHomeCount = 0;
+  int get openHomeCount => _openHomeCount;
+  set openHomeCount(v){_openHomeCount = v;notifyListeners();}
 
 bool _isLoading = false;
 bool get  isLoading => _isLoading;
  changeLoading(context,v){_isLoading = v;isLoading ==true?showLoadingDialog(context):Navigator.pop(context);notifyListeners();}
+
 
   showLoadingDialog(context){
   if(isLoading==true){
@@ -218,12 +222,13 @@ bool get  isLoading => _isLoading;
   Future<void> baseDirectory(Function(String) getBooks) async {
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     AndroidDeviceInfo androidDeviceInfo = await deviceInfoPlugin.androidInfo;
-    if (androidDeviceInfo.version.sdkInt < 30) {
+    if (androidDeviceInfo.version.sdkInt <= 32) {
       PermissionStatus permissionStatus = await Permission.storage.request();
       if (permissionStatus.isGranted) {
         var rootDirectory = await ExternalPath.getExternalStorageDirectories();
         var appDirectory = await getApplicationDocumentsDirectory();
         await getBooks(rootDirectory.first);
+        await getBooks(appDirectory.path);
       }
     } else {
       PermissionStatus permissionStatus =

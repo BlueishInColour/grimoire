@@ -31,7 +31,7 @@ class _BookmarkIndexScreenState extends State<BookmarkIndexScreen> {
 
 
 
-              return BookListAdapterItem(bookId: json["bookId"], size: 11,createdAt:historyModel.createdAt);
+              return BookListAdapterItem(bookId: json["bookId"], size: 11,createdAt:historyModel.createdAt, onTap: (BookModel ) {  },);
             }
         )
     );

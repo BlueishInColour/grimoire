@@ -8,7 +8,9 @@ final ThemeData lightTheme = ThemeData(
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
       // foregroundColor: Colors.black87,
-     titleTextStyle: GoogleFonts.merriweather(fontSize: 15,color: Colors.black),
+     titleTextStyle: GoogleFonts.montserrat(
+         fontWeight: FontWeight.w700,
+         fontSize: 15,color: Colors.black),
     ),
     scaffoldBackgroundColor: Colors.white,   //
     floatingActionButtonTheme: FloatingActionButtonThemeData(
@@ -18,7 +20,9 @@ final ThemeData lightTheme = ThemeData(
     ),
     inputDecorationTheme: InputDecorationTheme(
 
-      labelStyle: GoogleFonts.merriweather(
+
+
+      labelStyle: GoogleFonts.montserrat(
           color: Colors.black54,
           fontSize: 13
       ),
@@ -36,7 +40,7 @@ final ThemeData lightTheme = ThemeData(
     ),
     textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
-        textStyle: WidgetStatePropertyAll(GoogleFonts.merriweather(
+        textStyle: WidgetStatePropertyAll(GoogleFonts.montserrat(
           fontWeight: FontWeight.w900
         ))
       )
@@ -45,7 +49,6 @@ final ThemeData lightTheme = ThemeData(
         style: ButtonStyle(
             backgroundColor: WidgetStatePropertyAll(Colors.black),
             foregroundColor: WidgetStatePropertyAll(Colors.white70),
-            minimumSize: WidgetStatePropertyAll(Size(100,50)),
             shape: WidgetStatePropertyAll(
                 RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(0)
@@ -57,13 +60,16 @@ final ThemeData lightTheme = ThemeData(
     // isScrollable: true,
     tabAlignment: TabAlignment.start,
 
-    labelStyle: GoogleFonts.merriweather(
+
+    labelStyle: GoogleFonts.montserrat(
         fontWeight: FontWeight.w900,
-        fontSize: 15
+        fontSize: 13,
+      color: colorRed,
+
     ),
-    unselectedLabelStyle: GoogleFonts.merriweather(
+    unselectedLabelStyle: GoogleFonts.montserrat(
         fontWeight: FontWeight.w700,
-        fontSize: 13
+        fontSize: 11
     ),
 
     labelColor:Colors.black,
@@ -76,12 +82,27 @@ final ThemeData lightTheme = ThemeData(
 
   ),
   bottomSheetTheme: BottomSheetThemeData(
-    dragHandleColor: Colors.black,
+    dragHandleColor: Colors.white60,
+    backgroundColor: Colors.black,
+
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(15),
     ),
     showDragHandle: true
 
   ),
+  searchBarTheme: SearchBarThemeData(
+    textStyle: WidgetStatePropertyAll((GoogleFonts.montserrat(
+        fontSize: 12,
+        color: Colors.black87
+    )),),
+
+    elevation: WidgetStatePropertyAll(0),
+    backgroundColor: WidgetStatePropertyAll(Colors.grey.shade200),
+    hintStyle: WidgetStatePropertyAll(GoogleFonts.montserrat(
+        fontSize: 12,
+        color: Colors.black45
+    )),
+  )
   // Define additional light theme properties here
 );
