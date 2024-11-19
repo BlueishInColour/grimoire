@@ -1,23 +1,35 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:external_path/external_path.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_p2p_connection/flutter_p2p_connection.dart';
-import 'package:grimoire/load_widget.dart';
+import 'package:grimoire/commons/adapters/screen_adapter.dart';
+import 'package:grimoire/commons/views/load_widget.dart';
+import 'package:grimoire/main.dart';
+import 'package:grimoire/read/pdf_viewer_screen.dart';
+import 'package:grimoire/read/story_viewer.dart';
+import 'package:grimoire/publish/write_edit_screen.dart';
+import 'package:grimoire/models/story_model.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:permission_handler/permission_handler.dart';
+import 'package:playx_version_update/playx_version_update.dart';
 // import 'package:playx_version_update/playx_version_update.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
+import 'models/history_model.dart';
+
 class MainController extends ChangeNotifier {
   MainController(){
     // fetchInitialTheme();
-baseDirectory();
+// baseDirectory();
   }
 
 
@@ -196,14 +208,14 @@ bool get  isLoading => _isLoading;
 // //   }
 // // }'
 
-requestPermissions()async{
-
-
-  PermissionStatus permissionStatus = await Permission.storage.request();
-  if (permissionStatus.isGranted) {
-}
-  }
-  Future<void> baseDirectory() async {
+// requestPermissions(Function() getBooks)async{
+// //
+//
+//   PermissionStatus permissionStatus = await Permission.storage.request();
+//   if (permissionStatus.isGranted) {
+// }
+//   }
+  Future<void> baseDirectory(Function(String) getBooks) async {
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     AndroidDeviceInfo androidDeviceInfo = await deviceInfoPlugin.androidInfo;
     if (androidDeviceInfo.version.sdkInt < 30) {
@@ -211,18 +223,16 @@ requestPermissions()async{
       if (permissionStatus.isGranted) {
         var rootDirectory = await ExternalPath.getExternalStorageDirectories();
         var appDirectory = await getApplicationDocumentsDirectory();
-        await getFiles(rootDirectory.first);
-        await getDownloadedFiles();
+        await getBooks(rootDirectory.first);
       }
     } else {
       PermissionStatus permissionStatus =
       await Permission.manageExternalStorage.request();
       if (permissionStatus.isGranted) {
         var rootDirectory = await ExternalPath.getExternalStorageDirectories();
-        await getFiles(rootDirectory.first);
-        await getDownloadedFiles();
-
+        await getBooks(rootDirectory.first);
       }
+    }
 //       // share offline permission
 //       FlutterP2pConnection().checkStoragePermission();
 //
@@ -246,53 +256,32 @@ requestPermissions()async{
 //
 // // enable wifi
 //       FlutterP2pConnection().enableWifiServices();
-    }}
+//     }}
+  }
+      Future<void> getFiles(String directoryPath, String extension,
+          Function(String) onGet) async {
+        try {
+          Directory appDocDir = await getApplicationDocumentsDirectory();
 
-  List<String> _pdfFiles = [];
-  List<String> get pdfFiles => _pdfFiles;
-  pdfFilesadd(v){_pdfFiles.add(v); notifyListeners();}
-
-  Future<void> getFiles(String directoryPath) async {
-    try {
-      Directory appDocDir = await getApplicationDocumentsDirectory();
-
-      var rootDirectory = Directory(directoryPath);
-      var directories = rootDirectory.list(recursive: false);
-      directories.forEach((element) {
-        if (element is File) {
-          if (element.path.split(".").last == "pdf") {
-            // debugPrint("PDF File Name : ${element.path.split("/").last}");
-            pdfFilesadd(element.path);
-          }
-        } else{
-          getFiles(element.path);
+          var rootDirectory = Directory(directoryPath);
+          var directories = rootDirectory.list(recursive: false);
+          directories.forEach((element) {
+            if (element is File) {
+              if (element.path
+                  .split(".")
+                  .last == extension) {
+                // debugPrint("PDF File Name : ${element.path.split("/").last}");
+                onGet(element.path);
+              }
+            } else {
+              getFiles(element.path, extension, (v) => onGet(v));
+            }
+          });
+        } catch (e) {
+          debugPrint(e.toString());
         }
-      });
-    } catch (e) {
-      debugPrint(e.toString());
-    }}
+      }
 
-  ///get downloaded file
-
-  List<String> _pdfDownloadedFiles = [];
-  List<String> get pdfDownloadedFiles => _pdfDownloadedFiles;
-  pdfDownloadedFilesadd(v){_pdfDownloadedFiles.add(v); notifyListeners();}
-
-  Future<void> getDownloadedFiles() async {
-    try {
-
-      Directory appDocDir = await getApplicationDocumentsDirectory();
-
-      var directories = appDocDir.list(recursive: false);
-      directories.forEach((element) {
-          if (element.path.split(".").last == "pdf") {
-            debugPrint("PDF File Name : ${element.path.split("/").last}");
-            pdfDownloadedFilesadd(element.path);
-          }
-      });
-    } catch (e) {
-      debugPrint(e.toString());
-    }}
 
   ///change light or dark mode
 
@@ -309,11 +298,11 @@ requestPermissions()async{
 
   uploadListOfImage(context,
       {
-    required List<File> medias ,
-    required Function(String) afterOneUpload,
-    required Function afterTotalUpload,
-    required Function isFailed
-  })async{
+        required List<File> medias ,
+        required Function(String) afterOneUpload,
+        required Function afterTotalUpload,
+        required Function isFailed
+      })async{
     changeLoading(context, true);
     final storageRef = FirebaseStorage.instance.ref();
     for (var media in medias) {
@@ -342,40 +331,77 @@ requestPermissions()async{
 
   }
 
+  uploadListOfMemoryImage(context,
+      {
+        required List<MemoryImage> medias ,
+        required Function(String) afterOneUpload,
+        required Function afterTotalUpload,
+        required Function isFailed
+      })async{
+    changeLoading(context, true);
+    final storageRef = FirebaseStorage.instance.ref();
+    for (var media in medias) {
+      try {
+
+        var mediaName = Uuid().v1();
+        final mediaRef = storageRef.child("medias/$mediaName");
+        await mediaRef.putData(media.bytes);
+        String downloadUrl = await mediaRef.getDownloadURL();
+        afterOneUpload(downloadUrl);
+        debugPrint("not done with all");
+
+      } catch ( e) {
+        isFailed();
+
+      }
+      debugPrint("done with all");
+
+    }
+    debugPrint("done with all");
+    changeLoading(context, false);
+
+    afterTotalUpload();
+
+
+
+  }
+
   updateApp(context)async{
-    // final result = await PlayxVersionUpdate.showInAppUpdateDialog(
-    //   context: context,
-    //   //Type for google play in app update either flexible or immediate update.
-    //   type: PlayxAppUpdateType.flexible,
-    //   //customize app store id in ios
-    //   appStoreId: 'com.blueishincolour.grimoire',
-    //   //show release notes or not in ios
-    //   showReleaseNotes: true,
-    //   //customize dialog layout like release notes title  in ios.
-    //   releaseNotesTitle: (info) => 'Recent Updates of ${info.newVersion}',
-    //   // When the user clicks on update action the app open the app store,
-    //   // If you want to override this behavior you can call [onIosUpdate].
-    //   onIosUpdate: (info, launchMode) async {
-    //     final storeUrl = info.storeUrl;
-    //     final res = await PlayxVersionUpdate.openStore(storeUrl: storeUrl);
-    //     res.when(success: (success) {
-    //       print('playx_open_store: success :$success');
-    //     }, error: (error) {
-    //       print('playx_open_store: error :$error');
-    //     });
-    //   },
-    //
-    // );
-    // result.when(success: (isShowed) {
-    //   print( ' showInAppUpdateDialog success : $isShowed');
-    // }, error: (error) {
-    //   print(' showInAppUpdateDialog error : $error ${error.message}');
-    // });
+    if(kIsWeb){return ;}
+    else{
+      final result = await PlayxVersionUpdate.showInAppUpdateDialog(
+        context: context,
+        //Type for google play in app update either flexible or immediate update.
+        type: PlayxAppUpdateType.flexible,
+        //customize app store id in ios
+        appStoreId: 'com.blueishincolour.grimoire',
+        //show release notes or not in ios
+        showReleaseNotes: true,
+        //customize dialog layout like release notes title  in ios.
+        releaseNotesTitle: (info) => 'Recent Updates of ${info.newVersion}',
+        // When the user clicks on update action the app open the app store,
+        // If you want to override this behavior you can call [onIosUpdate].
+        onIosUpdate: (info, launchMode) async {
+          final storeUrl = info.storeUrl;
+          final res = await PlayxVersionUpdate.openStore(storeUrl: storeUrl);
+          res.when(success: (success) {
+            print('playx_open_store: success :$success');
+          }, error: (error) {
+            print('playx_open_store: error :$error');
+          });
+        },
+      );
+      result.when(success: (isShowed) {
+        print(' showInAppUpdateDialog success : $isShowed');
+      }, error: (error) {
+        print(' showInAppUpdateDialog error : $error ${error.message}');
+      });
+    }
   }
 //firstimers
-Future<bool> isFirstTime()async{
+Future<bool?> isFirstTime()async{
     SharedPreferences pref = await SharedPreferences.getInstance();
-    return pref.getBool("isFirstTime") ?? true;
+    return pref.getBool("isFirstTime");
 
 }
 updateFirstTime()async{
@@ -384,21 +410,29 @@ updateFirstTime()async{
 
 }
 
-Future<List<String>> getListOfLikes()async{
+Future<List<String>> _listOfLikes()async{
   SharedPreferences pref = await SharedPreferences.getInstance();
   return pref.getStringList("listOfLikes") ?? [];
 
 }
+
+ Future<List<String>> get listOfLikes=>_listOfLikes();
+  addListToListOfLikes(v) async {
+    SharedPreferences pref =  await SharedPreferences.getInstance();
+    pref.setStringList("listOfLikes",v);
+    notifyListeners();
+  }
+
   addToListOfLikes(String v)async{
     SharedPreferences pref = await SharedPreferences.getInstance();
-    var list = await getListOfLikes();
+    var list = await listOfLikes;
      list.add(v);
     pref.setStringList("listOfLikes", list);
     notifyListeners();
   }
   removeFromListOfLikes(String v)async{
     SharedPreferences pref = await SharedPreferences.getInstance();
-    var list = await getListOfLikes();
+    var list = await listOfLikes;
     list.remove(v);
     pref.setStringList("listOfLikes", list);
     notifyListeners();
@@ -409,6 +443,10 @@ Future<List<String>> getListOfLikes()async{
   late TabController _tabController ;
   TabController get tabController =>_tabController;
   set tabController(v){_tabController =v;notifyListeners();}
+
+  int _tabIndex = 4;
+  int get tabIndex => _tabIndex;
+  set tabIndex(v){_tabIndex=0;notifyListeners();}
 
   //currentsubGenre
   String _currentGenre = "Fiction";

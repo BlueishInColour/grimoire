@@ -63,7 +63,7 @@ Widget authButton(){
   icon: !FirebaseAuth.instance.currentUser!.photoURL!.isNotEmpty?Icon(Icons.person_3_outlined):SizedBox()))  ,
   SizedBox(width: 15,),
   Text("Yo! " +  "${FirebaseAuth.instance.currentUser!.displayName?.split(" ")[0]}" ??"edit profile",
-  style: GoogleFonts.montserrat(
+  style: GoogleFonts.merriweather(
   fontSize: 20,
   fontWeight: FontWeight.w800,
   color: Colors.white70,
@@ -81,7 +81,7 @@ Widget authButton(){
                ),
            
                label: Text("welcome! login to get started",
-                   style: GoogleFonts.montserrat(
+                   style: GoogleFonts.merriweather(
                    fontSize: 20,
                    fontWeight: FontWeight.w800,
                    color: Colors.white70

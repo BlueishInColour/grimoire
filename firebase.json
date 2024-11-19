@@ -1,1 +1,59 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"meninsuits","appId":"1:1035770891435:android:f04ce025eea1435cc4bbee","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"meninsuits","configurations":{"android":"1:1035770891435:android:f04ce025eea1435cc4bbee","web":"1:1035770891435:web:4e134a6af624550dc4bbee"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "meninsuits",
+          "appId": "1:1035770891435:android:f04ce025eea1435cc4bbee",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "meninsuits",
+          "configurations": {
+            "android": "1:1035770891435:android:f04ce025eea1435cc4bbee",
+            "web": "1:1035770891435:web:4e134a6af624550dc4bbee"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+
+    "site":"grimoire-live",
+    "source": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "headers": [
+      {
+        "source": "/.well-known/assetlinks.json",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      }
+    ],
+    "rewrites": [
+      {
+
+
+
+        "source": "/.well-known/assetlinks.json",
+        "destination": "/.well-known/assetlinks.json"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "frameworksBackend": {
+      "region": "us-central1"
+    }
+  }
+}

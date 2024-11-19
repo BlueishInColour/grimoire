@@ -1,14 +1,19 @@
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grimoire/app/privacy-policy.dart';
 import 'package:grimoire/auth/tf.dart';
+import 'package:grimoire/commons/views/bottom.dart';
 import 'package:grimoire/main.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import '../CONSTANT.dart';
-import '../commons/loadable.dart';
+import '../read/markdown_screen.dart';
+import '../constant/CONSTANT.dart';
+import '../commons/views/loadable.dart';
 import 'auth_service.dart';
 import 'controller/create_user_controller.dart';
 
@@ -19,33 +24,35 @@ class SignInScreen extends StatefulWidget {
   State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMixin{
+class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMixin {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
+
   bool seePassword = false;
   bool isLoading = false;
   int selectedIndex = 0;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
   }
-  @override
-  Widget build(BuildContext context) {
 
-    Widget loginView() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget loginView() {
+    return Consumer<CreateUserController>(
+      builder: (context,c,child)=> Column(
+
         children: [
           authTextField("email",
               validateEmai: true,
-              emailController,keyboardType:
+              c.email, keyboardType:
               TextInputType.emailAddress),
 
           SizedBox(height: 15),
           authTextField(
             "password",
-            passwordController,
+            c.password,
             obscureText: !seePassword,
             keyboardType: TextInputType.visiblePassword,
             suffix:
@@ -60,222 +67,458 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
                 color: seePassword ? Colors.black : Colors.grey,
               ),
             ),),
-          TextButton(onPressed: (){
-            setState(() {
-              selectedIndex =2;
-            });
-          }, child: Text("forgotten password?",
-          style: GoogleFonts.montserrat(),
-          )),
-          TextButton(onPressed: (){
-            setState(() {
-              selectedIndex =1;
-            });
-          }, child: Text("sign up",
-            style: GoogleFonts.montserrat(),
-          ))
+          Row(
+            children: [
+              TextButton(onPressed: () {
+                setState(() {
+                  selectedIndex = 1;
+                });
+              }, child: Text("Sign Up",
+                style: GoogleFonts.merriweather(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 10,
+                    color: Colors.black
+                ),
+              )),
+            ],
+          ),
+          Row(
+            children: [
+              TextButton(onPressed: () {
+                setState(() {
+                  selectedIndex = 2;
+                });
+              }, child: Text("Forgotten Password?",
+                style: GoogleFonts.merriweather(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 10,
+                    color: Colors.black
+                ),
+              )),
+            ],
+          ),
+
 
         ],
-      );
-    }
+      ),
+    );
+  }
 
-    Widget signupView() {
-      return    Consumer<CreateUserController>(
-        builder:(context,c,child)=> ListView(
-          children: [
-            Row(
-              children: [
-                CircleAvatar(radius: 45,
-                  backgroundImage: NetworkImage(c.profilePicture),
-                  child:IconButton.outlined(onPressed: ()async{await c.captureProfilePicture(context);}, icon: Icon(Icons.camera_alt_outlined)),
+  Widget signUpView() {
+    return Consumer<CreateUserController>(
+      builder: (context,c,child)=> Column(
 
+        children: [
+          authTextField("Full Name",c.full_name),
+
+          SizedBox(height: 10),
+          authTextField("Pen Name (Username)",c.pen_name),
+
+          SizedBox(height: 10),
+          authTextField("Email",
+              validateEmai: true,
+              c.email, keyboardType:
+              TextInputType.emailAddress),
+
+          SizedBox(height: 10),
+          authTextField(
+            "password",
+            c.password,
+            obscureText: !seePassword,
+            keyboardType: TextInputType.visiblePassword,
+            suffix:
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  seePassword = !seePassword;
+                });
+              },
+              icon: Icon(
+                Icons.remove_red_eye,
+                color: seePassword ? Colors.black : Colors.grey,
+              ),
+            ),),   SizedBox(height: 10),
+          authTextField(
+            "confirm password",
+            c.password,
+            obscureText: !seePassword,
+            keyboardType: TextInputType.visiblePassword,
+            suffix:
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  seePassword = !seePassword;
+                });
+              },
+              icon: Icon(
+                Icons.remove_red_eye,
+                color: seePassword ? Colors.black : Colors.grey,
+              ),
+            ),),
+          Row(
+            children: [
+              TextButton(onPressed: () {
+                setState(() {
+                  selectedIndex=0;
+                });
+              }, child: Text("Login",
+                style: GoogleFonts.merriweather(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 10,
+                    color: Colors.black
                 ),
-              ],
-            ),
-            authTextField("full name",
-                c.full_name
+              )),
+            ],
+          ),
+          Row(
+            children: [
+              TextButton(onPressed: () {
+                setState(() {
+                  selectedIndex = 2;
+                });
+              }, child: Text("Forgotten Password?",
+                style: GoogleFonts.merriweather(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 10,
+                    color: Colors.black
+                ),
+              )),
+            ],
+          ),
 
-            ),
 
+        ],
+      ),
+    );
+  }
 
-
+    Widget forgottenPasswordView() {
+      return Consumer<CreateUserController>(
+        builder:(context,c,child)=> Column(
+          children: [
             authTextField("email",
                 validateEmai: true,
 
-                emailController,keyboardType:
+                emailController, keyboardType:
                 TextInputType.emailAddress),
-
-            authTextField(
-              "phone number",
-              c.phone_number,
-
-            ),
-            authTextField(
-              "home address",
-              c.home_address,
-
-            ),
-            authTextField(
-              "city",
-              c.city,
-            ),
-            authTextField(
-              "state",
-              c.state,
-            ),
-            authTextField(
-              "country",
-              c.country,
-
-            ),
-            SizedBox(height: 15),
-
-
-
-
-            authTextField(
-              "password",
-              passwordController,
-              obscureText: !seePassword,
-              keyboardType: TextInputType.visiblePassword,
-              suffix:
-              IconButton(
-                onPressed: () {
+            Row(
+              children: [
+                TextButton(onPressed: () {
                   setState(() {
-                    seePassword = !seePassword;
+                    selectedIndex=0;
                   });
-                },
-                icon: Icon(
-                  Icons.remove_red_eye,
-                  color: seePassword ? Colors.black : Colors.grey,
-                ),
-              ),),
-            authTextField(
-              "confirm password",
-              passwordController,
-              obscureText: !seePassword,
-              keyboardType: TextInputType.visiblePassword,
-              suffix:
-              IconButton(
-                onPressed: () {
+                }, child: Text("Login",
+                  style: GoogleFonts.merriweather(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 10,
+                      color: Colors.black
+                  ),
+                )),
+              ],
+            ),
+            Row(
+              children: [
+                TextButton(onPressed: () {
                   setState(() {
-                    seePassword = !seePassword;
+                    selectedIndex = 1;
                   });
-                },
-                icon: Icon(
-                  Icons.remove_red_eye,
-                  color: seePassword ? Colors.black : Colors.grey,
-                ),
-              ),),
+                }, child: Text("You don't have an account? Sign Up",
+                  style: GoogleFonts.merriweather(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 10,
+                      color: Colors.black
+                  ),
+                )),
+              ],
+            ),
 
           ],
         ),
-      );
-    }
+      );}
+Widget build(BuildContext context){
 
-    Widget forgottenPasswordView() {
-      return Column(
-        children: [
-          authTextField("email",
-              validateEmai: true,
+      return Consumer<CreateUserController>(
+        builder:(context,c,child)=> Container(
+          decoration: BoxDecoration(
 
-              emailController,keyboardType:
-              TextInputType.emailAddress),
+            gradient: SweepGradient(
 
-        ],
-      );
-    }
-
-
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        automaticallyImplyLeading: true,
-leading: selectedIndex!=0?BackButton(
-  onPressed: (){
-    setState(() {
-      selectedIndex=0;
-    });
-  },
-):null,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(36.0),
-        child: Column(
-          children: [
-            [
-              loginView(),
-              signupView(),
-              forgottenPasswordView()
-            ][selectedIndex],
-            SizedBox(height: 100,),
-            ElevatedButton.icon(
-              style: ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(
-                  Colors.blue.shade600
-                ),
-                padding: WidgetStatePropertyAll(EdgeInsets.all(10)),
-                minimumSize: WidgetStatePropertyAll(Size(400,50)),
-                shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
-                textStyle:WidgetStatePropertyAll(
-                    GoogleFonts.montserrat(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700
-                    )
-                )
-              ),
-
-              onPressed: (){AuthService().signInWithGoogle(isSignedIn: (v){
-              goto(context, MainApp());
-            });},
-            icon: CircleAvatar(child: Image.asset("assets/google2.png")),
-            label: Text("continue with google"),)
-          ],
-        ),
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ElevatedButton(
-          style: ButtonStyle(
-            shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-            backgroundColor: WidgetStatePropertyAll(APPCOLOR),
-            foregroundColor: WidgetStatePropertyAll(Colors.white70),
-
-        ),
-          child:
-          loadable(
-            child: Text(
-              selectedIndex==0?"login"
-              :selectedIndex==1?"sign up":
-
-              "send reset link",
-            style: GoogleFonts.montserrat(
-              fontWeight: FontWeight.w800
-            ),),
+                colors: [
+              Colors.purple.shade100,
+              Colors.blue.shade100,
+              Colors.red.shade100,
+              Colors.green.shade100,
+            ])
           ),
-          onPressed: ()async{
-            if(!isLoading){
-              try{
-                setState(() {
-                  isLoading = true;
-                });
-                final auth = AuthService();
-                if(selectedIndex ==0) {
-                  await auth.login(emailController.text, passwordController.text,context);
-                } else if(selectedIndex ==1)await auth.signup(emailController.text, passwordController.text,context);
-                else await auth.sendForgottenPasswordEmail(context,emailController.text);
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
 
-              }catch( e){
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("email or password is incorrect  $e")));
-              }
-            }setState(() {
-              isLoading = false;
-            });
-          },
+            body: ListView(
+              children: [
+                SizedBox(height: MediaQuery.of(context).size.height*0.2,),
+                Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Center(
+                    child: Container(
+                      // height: 450,
+                        width: 400,
+                      padding: EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Colors.white70,
+                        borderRadius: BorderRadius.circular(10),
+
+                      ),
+                      child: Column(
+                        mainAxisAlignment:MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                        children:  [
+                          [
+                            loginView(),
+                            signUpView(),
+                            forgottenPasswordView()
+                          ][selectedIndex],
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              children: [
+
+                                SizedBox(height: 10,),
+                                GestureDetector(
+                                  onTap:  () async {
+                                    if (!isLoading) {
+                                      try {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        final auth = AuthService();
+                                        if (selectedIndex == 0) {
+                                          await auth.login(
+                                              c.email.text, c.password.text,
+                                              context);
+                                        }
+                                        else if(selectedIndex ==1){
+                                          await AuthService().signup(
+                                              c.email.text, c.password.text,
+                                              context).whenComplete((){
+                                            c.createUser(context);
+                                          });;
+                                        }
+                                        else
+                                          await auth.sendForgottenPasswordEmail(
+                                              context, c.email.text);
+                                      } catch (e) {
+                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                            content: Text(
+                                                "email or password is incorrect  $e")));
+                                      }
+                                    }
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+                                  },
+                                  child: BottomBar(child:(fontSize,iconSize)=> Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                  Text(
+                                  selectedIndex == 0 ? "Login"
+                                  :selectedIndex==1?"Sign up":
+
+                                    "Send Reset Link",
+                                    style: GoogleFonts.merriweather(
+                                        fontWeight: FontWeight.w800,
+                                      color: Colors.white70,
+                                      fontSize: fontSize
+                                    ),),
+
+                                    ],
+                                  )),
+                                ),
+
+                                SizedBox(height: 10,),
+                                Text.rich(TextSpan(
+                                    style: GoogleFonts.merriweather(
+                                      fontSize: 12,
+                                    ),
+                                    children: [
+                                      TextSpan(text: "By continuing, you agree to our"),
+                                      TextSpan(text: " Privacy Policy",
+                                          style: GoogleFonts.merriweather(color: Colors.purple),
+                                          onEnter: (v) {
+                                            goto(context,
+
+                                                MarkdownScreen(data: privacyPolicy));
+                                          }
+                                      ),
+                                      TextSpan(text: " and"),
+                                      TextSpan(text: " Terms of Use",
+                                          style: GoogleFonts.merriweather(color: Colors.purple),
+                                          onEnter: (v) {
+                                            goto(context,
+                                                MarkdownScreen(data: privacyPolicy));
+                                          }
+                                      ),
+                                    ]
+                                )),
+                              ],
+                            ),
+                          ),
+                        ]
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
+      );
+    }
+  }
+
+// import 'package:flutter/material.dart';
+
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key,this.editing = false});
+final bool editing;
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+
+  bool seePassword = false;
+  bool isLoading = false;
+  int selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return  Consumer<CreateUserController>(
+      builder:(context,c,child)=> Scaffold(
+        appBar:AppBar(),
+        body: Center(
+          child: SizedBox(
+            width: 500,
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 15),
+              child: ListView(
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(radius: 45,
+                        backgroundImage: NetworkImage(c.profilePicture),
+
+                      ),
+                      SizedBox(width: 20,),
+                      IconButton(onPressed: ()async{await c.captureProfilePicture(context, source: ImageSource.camera);},
+                          icon: Icon(Icons.camera_alt_outlined)),
+
+
+                      IconButton(onPressed: ()async{await c.captureProfilePicture(context, source: ImageSource.gallery);},
+                          icon: Icon(Icons.image_outlined)),
+                    ],
+                  ),
+                  authTextField("full name",
+                      c.full_name
+
+                  ),
+
+
+
+                  authTextField("email",
+                      validateEmai: true,
+
+
+                      c.email,keyboardType:
+                      TextInputType.emailAddress),
+
+                  authTextField(
+                    "phone number",
+                    c.phone_number,
+
+                  ),
+                  authTextField(
+                    "home address",
+                    c.home_address,
+
+                  ),
+                  authTextField(
+                    "city",
+                    c.city,
+                  ),
+                  authTextField(
+                    "state/Province",
+                    c.state,
+                  ),
+                  authTextField(
+                    "country",
+                    c.country,
+
+                  ),
+                  SizedBox(height: 15),
+
+
+
+
+               widget.editing?SizedBox.shrink():   authTextField(
+                    "password",
+                    c.password,
+                    obscureText: !seePassword,
+                    keyboardType: TextInputType.visiblePassword,
+                    suffix:
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          seePassword = !seePassword;
+                        });
+                      },
+                      icon: Icon(
+                        Icons.remove_red_eye,
+                        color: seePassword ? Colors.black : Colors.grey,
+                      ),
+                    ),),
+                  widget.editing?SizedBox.shrink():      authTextField(
+                    "confirm password",
+                    c.confirm_password,
+                    obscureText: !seePassword,
+                    keyboardType: TextInputType.visiblePassword,
+                    suffix:
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          seePassword = !seePassword;
+                        });
+                      },
+                      icon: Icon(
+                        Icons.remove_red_eye,
+                        color: seePassword ? Colors.black : Colors.grey,
+                      ),
+                    ),),
+                  SizedBox(height: 10,),
+                  ElevatedButton(
+                      style: ButtonStyle(
+                        minimumSize: WidgetStatePropertyAll(Size(400,50))
+                      ),
+                      onPressed: ()async{
+                    widget.editing?  c.createUser(context):
+
+                    await AuthService().signup(
+                        c.email.text, c.password.text,
+                        context).whenComplete((){
+                      Provider.of<CreateUserController>(context,listen:false).createUser(context);
+                    });;
+                  }, child: Text(widget.editing?"Update":"Sign Up",style: GoogleFonts.merriweather(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800
+                  ),)),
+
+                ],
+              ),
+            ),
+          ),
         ),
+
       ),
     );
-  }}
 
-final listOfTabs = ["login","sign up", "forgotten password"];
+  }
+}

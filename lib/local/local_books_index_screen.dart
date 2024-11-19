@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grimoire/app/app_index_screen.dart';
+import 'package:grimoire/in_app_purchase/purchase_screen.dart';
 import 'package:grimoire/local/offline_index_screen.dart';
 import 'package:grimoire/main_controller.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
 
 import 'downloaded_index_screen.dart';
@@ -20,7 +23,7 @@ class _LocalBooksIndexScreenState extends State<LocalBooksIndexScreen> with Tick
   void initState() {
     // TODO: implement initState
     super.initState();
-    tabController = TabController(length: 2, vsync: this,initialIndex: 0);
+    tabController = TabController(length: 5, vsync: this,initialIndex: 0);
   }
   @override
   Widget build(BuildContext context) {
@@ -42,44 +45,33 @@ class _LocalBooksIndexScreenState extends State<LocalBooksIndexScreen> with Tick
 
         ),
         child: Scaffold(
-          backgroundColor: Colors.transparent,
           appBar: AppBar(
+            backgroundColor: Colors.grey[50],
             title: TabBar(
               controller: tabController,
-              isScrollable: true,
-              labelStyle: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 12
-              ),
-              unselectedLabelStyle: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 12
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 0),
-
-              labelColor:c.isLightMode?Colors.black: Colors.white,
-              tabAlignment: TabAlignment.center,
-
-              unselectedLabelColor:c.isLightMode?Colors.black54: Colors.white54,
-              indicatorSize: TabBarIndicatorSize.label,
-              indicatorColor:c.isLightMode?Colors.black: Colors.white,
-              indicatorWeight: 0.8,
-              dividerColor: Colors.transparent,
-
+              // isScrollable: true,
+             isScrollable: true,
               tabs: [
                 Tab(child: Text("Downloaded"),),
-
-                Tab(child: Text("Local")),
+                Tab(child: Text("PDF")),
+                Tab(child: Text("EPUB")),
+                Tab(child: Text("DOC")),
+                Tab(child: Text("DOCx")),
+                Tab(child: Text("PPT")),
               ],
             ),
           ),
           body: TabBarView(
             controller: tabController,
             children: [
+              // PurchaseScreen(),
               DownloadedIndexScreen(),
-              OfflineIndexScreen(
+              OfflineIndexScreen(key:Key("pdf"),extension:"pdf"),
+              OfflineIndexScreen(key:Key("epub"),extension:"epub"),
+          OfflineIndexScreen(key:Key("doc"),extension:"doc"),
+          OfflineIndexScreen(key:Key("docx"),extension:"docx"),
+              OfflineIndexScreen(key:Key("ppt"),extension:"ppt"),
 
-              )
             ],
           ),
         ),
@@ -87,5 +79,3 @@ class _LocalBooksIndexScreenState extends State<LocalBooksIndexScreen> with Tick
     );
   }
 }
-
-

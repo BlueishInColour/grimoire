@@ -39,7 +39,7 @@ bool isLoading = false;
   );
   final textStyle = TextStyle(color: Colors.black87);
 
-  final  headerStyle = GoogleFonts.montserrat(color: Colors.white,fontSize: 40,fontWeight: FontWeight.w800);
+  final  headerStyle = GoogleFonts.merriweather(color: Colors.white,fontSize: 40,fontWeight: FontWeight.w800);
 
   InputDecoration? inputStyle(String hintText) => InputDecoration(
     hintText: hintText,
@@ -115,7 +115,7 @@ bool isLoading = false;
               SizedBox(height: 15,),
               TextButton(onPressed: (){
                 AuthService().logout();
-              }, child: Text("logout",style:GoogleFonts.montserrat(
+              }, child: Text("logout",style:GoogleFonts.merriweather(
                   color: Colors.red.shade700,
                 fontSize: 10,
                 fontWeight: FontWeight.w600
@@ -141,7 +141,7 @@ bool isLoading = false;
                 backgroundImage: NetworkImage(
                     FirebaseAuth.instance.currentUser!.photoURL ??""
                 ),
-                child:IconButton.outlined(onPressed: ()async{await c.captureProfilePicture(context);}, icon: Icon(Icons.camera_alt_outlined),style : buttonStyle,),
+                // child:IconButton.outlined(onPressed: ()async{await c.captureProfilePicture(context);}, icon: Icon(Icons.camera_alt_outlined),style : buttonStyle,),
 
         ),
 

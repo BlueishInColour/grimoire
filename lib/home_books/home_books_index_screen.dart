@@ -1,75 +1,107 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:enefty_icons/enefty_icons.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_masonry_view/flutter_masonry_view.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grimoire/app/app_index_screen.dart';
+import 'package:grimoire/home_books/read_list_pod.dart';
+import 'package:grimoire/in_app_purchase/purchase_screen.dart';
+import 'package:grimoire/main_controller.dart';
+import 'package:grimoire/models/list_model.dart';
+import 'package:provider/provider.dart';
 
-import '../commons/book_grid_item.dart';
-import '../commons/book_rank_view.dart';
-import '../search_and_genre/genre_index_screen.dart';
+import '../commons/ads/ads_helper.dart';
+import '../commons/ads/ads_view.dart';
+import '../commons/views/paginated_view.dart';
+import '../models/book_model.dart';
 
 class HomeBooksIndexScreen extends StatefulWidget {
-  const HomeBooksIndexScreen({super.key});
-
+  const HomeBooksIndexScreen({super.key, this.actionBarChild});
+final Widget? actionBarChild;
   @override
   State<HomeBooksIndexScreen> createState() => _HomeBooksIndexScreenState();
 }
 
-class _HomeBooksIndexScreenState extends State<HomeBooksIndexScreen> {
+class _HomeBooksIndexScreenState extends State<HomeBooksIndexScreen> with TickerProviderStateMixin {
+  late TabController tabController;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    tabController = TabController(length: 2, vsync: this);
+    // showPremiumPurchaseScreen(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
+    return Consumer<MainController>(
+      builder:(context,c,child)=> Scaffold(
+                backgroundColor: Colors.transparent,
+                body: NestedScrollView(
+                    headerSliverBuilder: (context, _) => [
+                          SliverAppBar(
+                            automaticallyImplyLeading: false,
+                            pinned: false,
+                            snap: true,
+                            floating: true,
+                            forceMaterialTransparency: true,
+                            title: TabBar(
+                              controller: tabController,
+                                isScrollable: true,
+                                tabs: [Tab(text: "Recommended",),Tab(text: "My Picks",)]),
+                            actions:[
+                            Container(
+                             // decoration: BoxDecoration(
+                             //   borderRadius: BorderRadius.circular(30),
+                             //   gradient:LinearGradient(
+                             //       colors: [
+                             //     Colors.purple.shade300,
+                             //     Colors.purple.shade200,
+                             //     Colors.purple.shade50,
+                             //   ])
+                             // ),
+                             child: IconButton(onPressed: (){
+                              showPremiumPurchaseScreen(context);
+                             },
+                             icon: Icon(EneftyIcons.magic_star_bold,
+                             color: Colors.purple.shade900,),),
+                           )
+                            ]
+                          ),
 
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [0.1, 0.2, 0.5],
-            colors: [
-              Colors.purple.shade50,
-              Colors.blue.shade50,
-              Colors.grey.shade50,
 
-            ]
+                        ],
+                    body:TabBarView(
+                        controller: tabController,
+                        children: [
+                      paginatedView(
+                        key: Key("Recommended"),
+                          query: FirebaseFirestore.instance.collection("list").where("status",isEqualTo: Status.Publish.name
+
+                          ).orderBy("createdAt",descending: true).limit(20),
+                          child: (datas,index){
+                            Map<String,dynamic> json = datas[index].data() as Map<String,dynamic>;
+                            ListModel list = ListModel.fromJson(json);
+                            return ReadListPod(list:list);
+                          }),
+                      paginatedView(
+                          key: Key("My List"),
+
+                          query: FirebaseFirestore.instance.collection("list").where("createdBy",isEqualTo:  FirebaseAuth.instance.currentUser?.email).orderBy("createdAt",descending: true).limit(20),
+                          child: (datas,index){
+                            Map<String,dynamic> json = datas[index].data() as Map<String,dynamic>;
+                            ListModel list = ListModel.fromJson(json);
+                            return ReadListPod(list:list,showRecommendButton: true,);
+                          })
+                    ])
+              ),
+        bottomNavigationBar: adaptiveAdsView(
+            AdHelper.getAdmobAdId(adsName:Ads.addUnitId3)
+
         ),
 
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          forceMaterialTransparency: true,
-          title: Text("Grimoire",style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w900,
 
-          ),),),
-          body:Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ListView(
-              children:[
-                Text("Top 20 Count Down",
-                  style: GoogleFonts.montserrat(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      color:Colors.black87
-                  ),),
-                SizedBox(height: 15,),
-
-                BookRankView(),
-                SizedBox(height: 15,),
-                Text("Based On Your Likes",
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color:Colors.black87
-                ),),
-
-                MasonryView(listOfItem: list,
-                    itemPadding: 4,
-                    numberOfColumn: 4, itemBuilder: (v){
-                      return BookGridItem(onTap: (){}, id: 0,title: v.title,height: v.height,);
-                    }),
-              ]
-                    ),
-          ),
-      ),
-    );
+            ));
   }
 }

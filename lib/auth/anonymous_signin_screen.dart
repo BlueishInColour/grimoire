@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../load_widget.dart';
+import '../commons/views/load_widget.dart';
 import 'auth_service.dart';
 
 
@@ -40,7 +40,7 @@ class _AnonymousSigninScreenState extends State<AnonymousSigninScreen> {
             ),
             SizedBox(height: 15,),
             Text("signing in anonymously",
-            style: GoogleFonts.montserrat(
+            style: GoogleFonts.merriweather(
               fontWeight: FontWeight.w900,
               fontSize: 12
             ),),

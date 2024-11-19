@@ -29,6 +29,8 @@ Widget authTextField(
       void Function(String)? onChanged,
       TextInputType? keyboardType,
       String? Function(String?)? validator,
+      int? maxLines,
+      int? minLines,
       Widget? suffix}
     ){
   return
@@ -49,16 +51,21 @@ Widget authTextField(
             obscureText: obscureText,
             keyboardType:keyboardType ,
 
-            style: GoogleFonts.montserrat(
-              color: Colors.black
+            style: GoogleFonts.merriweather(
+              color: Colors.black,
+              fontSize: 12
             ),
+            // maxLines: maxLines,
+            // minLines: minLines,
             decoration:
             InputDecoration(
                 labelText: hintText,
-                labelStyle: GoogleFonts.montserrat(
-                  color: Colors.black54,
-                  fontSize: 13
+                labelStyle: GoogleFonts.merriweather(
+                    color: Colors.black,
+                    fontSize: 12
                 ),
+                filled:true,
+                fillColor: Colors.white70,
 
                 suffixIcon: suffix),
           ),

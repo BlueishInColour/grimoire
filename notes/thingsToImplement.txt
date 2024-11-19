@@ -34,3 +34,94 @@ from rendering books in home screen,search, upload, download, view in download, 
 - side bar generally should be decided with (i like side bar)
 - style reader page
 - home screen should make more sense
+
+
+24th oct 2024
+- use mediastore plugint to get files and metadata
+- for local books, a better design will do
+- history, bookmark and book details page
+- find a solution to search screen and search must work
+- top twenty countdown should be more fluid
+- add book view should be better
+- based on your likes should be better formatted
+-log out should ask again
+quit app should show dialog
+
+27th oct 2024
+- bookmark should happen once
+- grimoire.live should go with policy, amd user agreement page
+- search should work
+- naviagtion proplem should be solved
+- search result screen should bring list of recent searches when theres nothing to display
+-
+
+30th oct, 2024
+- preferrred language
+-- prefered tags and catefory
+- for you tab
+done - dictionary screen
+- write story and convert to pdf and upload
+- edit user info
+done - privacy policy and user agreement markdown file
+- loading feature in login and other screens that may apply
+
+31st oct, 2024
+- webview
+- rate app
+done - write and upload story section
+- download button
+
+
+1st nov, 2024
+-publish section
+- web_view
+
+2nd nov, 2024
+- readlist indexing
+- downloading and download section
+- webview
+- edit user
+
+3rd nov, 2024
+- readlist finish up
+- search finish up
+- write finish up
+- edit user finish up
+
+
+4th nov, 2024
+- first timer screen
+- auth system should be rigid
+-
+
+5th nov, 2024
+-  wrtiting system should be rigid
+done - search index section should stop crashliking
+ - auth system should be rigid
+- history should only be update once
+
+7th nov , 2024
+- chat system should be better should be able to send books
+- read should have many settings that works
+
+12th nov,2024
+- copy book link button
+- send book hardclick send message
+- edit user
+- search in local books and local books reading widget
+
+15th nov 2024
+-  review and historyfy screen
+- management tabs
+- list review and sttatus settngs
+-
+
+18th nov,2024
+calculare monitization with readhours and seen history
+
+19th nov, 2024
+- count in tab bar item like novels total count badge
+- users should be able to remove from picks
+-- read play settings
+- learn more about firestore rules and ruling.
+-

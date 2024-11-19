@@ -1,4 +1,13 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:grimoire/app/feedback_screen.dart';
+import 'package:grimoire/app/privacy-policy.dart';
+import 'package:grimoire/app/terms_of_service.dart';
+import 'package:grimoire/auth/log_out_dialog.dart';
+import 'package:grimoire/auth/sign_in_screen.dart';
+import 'package:grimoire/local/local_books_index_screen.dart';
+import 'package:grimoire/management/management_index_screen.dart';
+import 'package:store_redirect/store_redirect.dart';
 
 import 'package:easy_url_launcher/easy_url_launcher.dart';
 import 'package:enefty_icons/enefty_icons.dart';
@@ -6,20 +15,29 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grimoire/app/bookmark_index_screen.dart';
-import 'package:grimoire/app/my_books_index_screen.dart';
+import 'package:grimoire/publish/my_books_index_screen.dart';
 import 'package:grimoire/app/private_book_index_screen.dart';
 import 'package:grimoire/app/share_books_index_screen.dart';
 import 'package:grimoire/auth/create_user_screen.dart';
 import 'package:grimoire/main.dart';
 import 'package:grimoire/main_controller.dart';
-import 'package:grimoire/publish/publish_index_screen.dart';
+import 'package:grimoire/search_and_genre/search_result_screen.dart';
+import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:rate_us_on_store/rate_us_on_store.dart';
 
 import '../auth/auth_service.dart';
+import '../commons/ads/ads_helper.dart';
+import '../commons/ads/ads_view.dart';
+import '../commons/views/dictionary_view.dart';
+import '../read/markdown_screen.dart';
+import '../commons/views/not_for_web.dart';
+import '../commons/views/web_screen.dart';
+import '../models/book_model.dart';
+import '../publish/publish_write_edit_screen.dart';
 import '../search_and_genre/search_index_screen.dart';
 import 'history_index_screen.dart';
-
+import 'package:launch_app_store/launch_app_store.dart';
 class AppIndexScreen extends StatefulWidget {
   const AppIndexScreen({super.key});
 
@@ -35,11 +53,20 @@ class _AppIndexScreenState extends State<AppIndexScreen> {
         leading: Icon(v.icon,
           // color: v.iconColor,
         ),
-        title: Text(v.title,style: GoogleFonts.montserrat(
-          fontSize: 12
-        ),),
-        trailing:v.child != null?v.child: Icon(Icons.arrow_forward_ios_rounded,size: 10,
-          color:c.isLightMode? Colors.black54:Colors.white54,),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(v.title,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.montserrat(
+                fontSize: 12
+              ),),
+            ),
+            //   color:c.isLightMode? Colors.black54:Colors.white54,),
+
+          ],
+        ),
+        // trailing:  v.child != null?v.child!: Icon(Icons.arrow_forward_ios_rounded,size: 10,)
       ),
     );
   }
@@ -51,7 +78,7 @@ class _AppIndexScreenState extends State<AppIndexScreen> {
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color:c.isLightMode? Colors.white:Colors.black
+              color:c.isLightMode? Colors.grey[50]:Colors.black
           ),
           child: Column(children: listOfTab.map((v){
             return listTile(v);
@@ -64,110 +91,137 @@ class _AppIndexScreenState extends State<AppIndexScreen> {
   @override
   Widget build(BuildContext context) {
     return  Consumer<MainController>(
-      builder:(context,c,child)=> Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
+      builder:(context,c,child)=> Stack(
+        children: [
+          Container(
+            height: 200,
 
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: [0.1, 0.2, 0.5],
-              colors: [
-                Colors.purple.shade50,
-                Colors.blue.shade50,
-                Colors.grey.shade50,
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
 
-              ]
+                  center: Alignment.topLeft,
+
+                  stops: [100,100,200],
+                  colors: [
+
+                    Colors.purple.shade50,
+                    Colors.blue.shade50,
+                    Colors.green.shade50,
+
+
+                  ]
+              ),
+
+            ),
           ),
+          NestedScrollView(
+            headerSliverBuilder: (_,__)=>[
+              SliverAppBar(
+                automaticallyImplyLeading: false,
+                snap: true,
+                floating: true,
 
-        ),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: AppBar(
+                forceMaterialTransparency: true,
+                shadowColor: Colors.transparent,
+                toolbarHeight: 70,
+                title:Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      // onTap: (){goto(context, SignUpScreen(editing: true,));},
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage(
+                            FirebaseAuth.instance.currentUser!.photoURL ??""
+                        ),
+                      ),
+                    ),
 
-            forceMaterialTransparency: true,
-            shadowColor: Colors.transparent,
-            toolbarHeight: 70,
-            title:Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(
-                    FirebaseAuth.instance.currentUser!.photoURL ??""
-                  ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 19.0),
+                        child: Text(FirebaseAuth.instance.currentUser!.displayName??"",
+                          overflow: TextOverflow.fade,
+
+                          style: GoogleFonts.montserrat(
+                              fontWeight: FontWeight.w800,
+                              color: Colors.black,
+                              fontSize: 15
+                          ),),
+                      ),
+                    )
+                  ],
                 ),
 
-                 SizedBox(width: 10,),
-                 Text(FirebaseAuth.instance.currentUser!.displayName??"",
-                 style: GoogleFonts.montserrat(
-                   fontWeight: FontWeight.w600,
-                   color:c.isLightMode?Colors.black87: Colors.white70,
-                   fontSize: 15
-                 ),)
+              ),
+            ],
+            body: Stack(
+
+              children: [
+
+
+
+                SafeArea(
+                  child: Scaffold(
+                    backgroundColor: Colors.transparent,
+
+                    body: ListView(
+                      children: [
+                        listTileColumn(listOfCollections(context)),
+                        listTileColumn(listOfInApp(context)),
+                        notForWeb(child: listTileColumn(listOfGoogleTabs(context))),
+                        listTileColumn(listOfApp(context)),
+                        SizedBox(height: 50,),
+
+                        Column(children: [
+                          TextButton(onPressed: (){
+                            showDialog(context: context, builder: (context){
+                              return logoutDialog(context);
+                            });
+                          }, child: Text("Log Out",
+                          style: GoogleFonts.merriweather(
+                            color: Colors.red.shade900,
+                            fontWeight: FontWeight.w900
+                          ),))
+                        ],),
+                        SizedBox(height: 250,)
+                      ],
+                    ),
+                    bottomNavigationBar: adaptiveAdsView(
+                    AdHelper.getAdmobAdId(adsName:Ads.addUnitId7)
+
+                    ),
+                  ),
+                ),
               ],
             ),
-            actions: [
-              // IconButton(onPressed: (){goto(context, CreateUserScreen());},
-              //     icon: Icon(EneftyIcons.user_edit_outline)),
-              SizedBox(width: 5,)
-            ],
           ),
-          body: ListView(
-            children: [
-              listTileColumn(listOfCollections(context)),
-              listTileColumn(listOfInApp(context)),
-              listTileColumn(listOfGoogleTabs(context)),
-
-              listTileColumn(listOfLinksTabs(context)),
-              listTileColumn(listOfApp),
-              SizedBox(height: 50,),
-
-              Column(children: [
-                TextButton(onPressed: (){
-                  AuthService().logout();
-                }, child: Text("Log Out",
-                style: GoogleFonts.montserrat(
-                  color: Colors.red.shade900,
-                  fontWeight: FontWeight.w900
-                ),))
-              ],),
-              SizedBox(height: 150,)
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }
 }
 
-List<tab> listOfCollections (context)=> [
-  tab(title: "History",      onTap: (){
+List<tab> listOfCollections (BuildContext   context)=> [
+
+
+
+];
+List<tab> listOfInApp (BuildContext   context)=> [
+
+  if(!kIsWeb && kDebugMode) tab(title: "History",      onTap: (){
     goto(context, HistoryIndexScreen());
 
   },
       icon: Icons.history),
-
-  tab(title: "Bookmarked",      onTap: (){
-    goto(context, BookmarkIndexScreen());
-  },
-      icon: Icons.bookmark_added_outlined),
-
-
-  tab(title: "My Books",      onTap: (){
-    goto(context, MyBooksIndexScreen());
-  },
-      icon: Icons.book_outlined),
-
-
-  tab(title: "Private Books",      onTap: (){
-    goto(context, PrivateBooksIndexScreen());
+ if(!kIsWeb && kDebugMode) tab(title: "Local Books",      onTap: (){
+    goto(context, LocalBooksIndexScreen());
 
   },
-      icon: Icons.lock_outline),
-];
-List<tab> listOfInApp (context)=> [
+      icon: Icons.download_outlined),
+
 
   tab(title: "Publish Book",      onTap: (){
-    goto(context, PublishIndexScreen());
+    goto(context, MyBooksIndexScreen());
 
   },
   //
@@ -176,16 +230,20 @@ List<tab> listOfInApp (context)=> [
   //     icon: Icons.person_2_outlined),
 
   tab(title: "Find Books",      onTap: (){
-    goto(context,SearchIndexScreen());
+    goto(context,SearchResultScreen());
   },
-
       icon: Icons.search),
+
+  tab(title: "Dictionary Word Search",      onTap: (){
+    goto(context,DictionaryView(searchText: "grimoire"));
+  },
+      icon: Icons.menu_book_outlined),
   // tab(title: "Share Books Offline",      onTap: (){
   //   // goto(context, ShareBooksIndexScreen());
   // },
   //     icon: Icons.share_outlined),
 
-];List<tab> listOfGoogleTabs(context) => [
+];List<tab> listOfGoogleTabs(BuildContext   context) => [
 
   //
   // tab(title: "Dark Mode",
@@ -203,6 +261,17 @@ List<tab> listOfInApp (context)=> [
       icon: Icons.star_outline,
       onTap: ()async{await rateUs();}
   ),
+  tab(
+      onTap: ()async{
+        await EasyLauncher.email(email: "blueishincolour@gmail.com",subject: "Feedback");
+        //
+      },
+      title: "Feedback",
+      icon: Icons.chat_bubble_outline,
+      iconColor: Colors.teal
+
+    //hand shake
+  ),
   // tab(title: "Improve & Design Grimoire",
   //     iconColor: Colors.amber.shade900,
   //     icon: Icons.color_lens_outlined,
@@ -214,28 +283,44 @@ List<tab> listOfLinksTabs(BuildContext context) => [
 ];
 
 
-List<tab> listOfApp =[
+List<tab> listOfApp(BuildContext   context) =>[
   //
   // tab(title: "Help & Feedback",
   //     iconColor: Colors.black,      onTap: (){},
   //
   //     icon:Icons.sms_outlined),
+  if(isManagement) tab(title: "Management",
+      icon: Icons.settings_outlined,
+      onTap: (){
+    goto(context, ManagementIndexScreen());
+      }),
   tab(title: "Privacy Policy",
       icon:Icons.privacy_tip_outlined,
-      onTap: (){openUrlLink();},
 
-
+      onTap: ()async{
+    await EasyLauncher.url(url: "https://grimoire.live/policy",mode: Mode.externalApp);
+    // goto(context, MarkdownScreen(data: privacyPolicy));
+    // goto(context, WebScreen(URL: "https://grimoire.live/privacy-policy",));
+    },
       iconColor: Colors.deepOrange
     //scroll note
   ),
   tab(
-      onTap: (){openUrlLink();},
-      title: "User Agreement",
+      onTap: ()async{
+        await EasyLauncher.url(url: "https://grimoire.live/terms",mode: Mode.externalApp);
+
+
+        // goto(context, MarkdownScreen(data: termsOfService));
+        //
+        // goto(context, WebScreen(URL: "https://grimoire.live/terms-of-sevice",));
+        },
+      title: "Terms Of Service",
       icon: Icons.handshake_outlined,
       iconColor: Colors.teal
 
     //hand shake
   ),
+
 
   // // icon: Icons.sm),
   // tab(title: "About Grimoire",
@@ -313,10 +398,12 @@ class tab{
 //     }}
 // }
 
-rateUs(){
-  RateUsOnStore(androidPackageName: "com.blueishincolour.grimoire", appstoreAppId: "284882215").launch();
-
-  }
+rateUs()async{
+ await LaunchReview.launch(
+     androidAppId: "com.blueishincolour.grimoire",
+      // iOSAppId: "585027354",
+ showToast: false,
+ writeReview: false);}
 
   openUrlLink({String url  = "https://blueishincolour.github.io/grimiore/"})async{
 await
