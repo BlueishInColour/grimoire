@@ -1,4 +1,3 @@
-import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,16 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'dart:async';
 import 'package:go_router/go_router.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
-// import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:grimoire/app/feedback_screen.dart';
 import 'package:grimoire/app/privacy-policy.dart';
 import 'package:grimoire/app/terms_of_service.dart';
-// import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:grimoire/auth/auth_gate.dart';
 import 'package:grimoire/auth/controller/create_user_controller.dart';
 import 'package:grimoire/commons/adapters/screen_adapter.dart';
@@ -24,6 +17,7 @@ import 'package:grimoire/commons/adapters/story_screen_adapter.dart';
 import 'package:grimoire/commons/views/bottom.dart';
 import 'package:grimoire/commons/views/first_timer_screen.dart';
 import 'package:grimoire/local/downloaded_index_screen.dart';
+import 'package:grimoire/publish/creator_index_screen.dart';
 import 'package:grimoire/search_and_genre/genre_search_index_screen.dart';
 import 'package:grimoire/tablet/tablet_auth_view.dart';
 import 'package:grimoire/home_books/book_detail_screen.dart';
@@ -42,6 +36,7 @@ import 'package:grimoire/tablet/tablet_ui_controller.dart';
 import 'package:grimoire/tablet/tablet_view.dart';
 import 'package:provider/provider.dart';
 import 'package:url_strategy/url_strategy.dart';
+import 'commons/ads/app_open_ads_manager.dart';
 import 'read/markdown_screen.dart';
 import 'constant/CONSTANT.dart';
 import 'app/app_index_screen.dart';
@@ -77,11 +72,6 @@ void main()async {
   );
  if(!kIsWeb){
    unawaited(MobileAds.instance.initialize());
-
-   await FlutterDownloader.initialize(
-       debug: true, // optional: set to false to disable printing logs to console (default: true)
-       ignoreSsl: true // option: set to false to disable working with http links (default: false)
-   );
  }
 await initializeLocalBooksStorage();
 
@@ -120,7 +110,10 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  int selectedIndex =!kDebugMode?0: 0;
+  int _counter = 0;
+  late AppLifecycleReactor _appLifecycleReactor;
+
+  int selectedIndex =!kDebugMode?0: 4;
   late DateTime currentBackPressTime;
   TextEditingController controller = TextEditingController();
   String searchText = "";
@@ -141,6 +134,9 @@ class _MainAppState extends State<MainApp> {
     MainController().updateApp(context);
     checkConectivity();
 
+      AppOpenAdManager appOpenAdManager = AppOpenAdManager()..loadAd();
+      _appLifecycleReactor = AppLifecycleReactor(
+          appOpenAdManager: appOpenAdManager);
 
   }
   @override
@@ -172,7 +168,7 @@ automaticallyImplyLeading: false,
 
                   // MeIndexScreen(),
                   AppIndexScreen(),
-                  if(isManagement) MyBooksIndexScreen(),
+                  if(isManagement) CreatorIndexScreen(),
 
                   if(isManagement)ManagementIndexScreen()
 
@@ -308,17 +304,17 @@ final GoRouter router = GoRouter(
            },),
 
          GoRoute(
-           path: Routes.Query.name,
+           path: "query",
            builder: (context, state) {
 
              return const SizedBox();
            },
            routes: [
-             GoRoute(path: "novel",
+             GoRoute(path: "novels",
              builder: (context,state){
 
                return
-                 AuthGate(isSignedInChild: GenreIndexScreen(currentGenre:  "novel"), isNotSignedInChild: SignInScreen(child:GenreIndexScreen(currentGenre:  "novel")));
+                 AuthGate(isSignedInChild: GenreIndexScreen(currentGenre:  "Novels"), isNotSignedInChild: SignInScreen(child:GenreIndexScreen(currentGenre:  "Novels")));
              },
                routes:[
                  GoRoute(path: ":subCategory",
@@ -329,7 +325,7 @@ final GoRouter router = GoRouter(
 
                        return
 
-                         AuthGate(isSignedInChild: page("novel", subCategory), isNotSignedInChild: SignInScreen(child:page("novel", subCategory)))
+                         AuthGate(isSignedInChild: page(context,"Novels", subCategory.toCapitalized), isNotSignedInChild: SignInScreen(child:page(context,"Novels", subCategory.toCapitalized)))
                             ;
                      },)
                ]
@@ -350,7 +346,10 @@ final GoRouter router = GoRouter(
            path: ":storyId",
            builder: (context,state){
              String storyId = state.pathParameters["storyId"] ?? "";
-             return StoryScreenAdapter(storyId: storyId);
+             return
+               AuthGate(isSignedInChild: StoryScreenAdapter(storyId: storyId), isNotSignedInChild:  StoryScreenAdapter(storyId: storyId));
+
+            ;
            },)
        ]
        ),
@@ -358,7 +357,10 @@ final GoRouter router = GoRouter(
          name: Routes.Creators.name,
          path: "creators",
          builder: (context,state){
-           return MyBooksIndexScreen();
+           return
+             AuthGate(isSignedInChild:CreatorIndexScreen(), isNotSignedInChild: SignInScreen(child:CreatorIndexScreen()));
+
+           ;
          },)
      ]
       ),

@@ -20,6 +20,7 @@ class BookRepository{
       }
 
       )async{
+    book.searchTags = book.title.split(" ");
     book.bookId = bookId;
       await FirebaseFirestore.instance.collection("library").doc(bookId).set(
           book.toJson()).whenComplete(() {

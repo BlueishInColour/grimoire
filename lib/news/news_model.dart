@@ -4,22 +4,28 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
 
-part "history_model.g.dart";
+part "news_model.g.dart";
 
 @JsonSerializable()
-class HistoryModel  {
-HistoryModel({
-  this.bookId="",
-  this.updatedAt
-
+class NewsModel  {
+NewsModel({
+this.title = "",
+  this.id="",
+  this.urlLink ="",
+  this.imageUrl = ""
 });
 
+String id;
+
+String title;
+String imageUrl;
+String urlLink;
+
+
 DateTime createdAt = DateTime.now();
-DateTime? updatedAt;
 String createdBy=FirebaseAuth.instance.currentUser?.email ?? "";
-String bookId;
 
-  factory HistoryModel.fromJson(Map<String, dynamic> json) => _$HistoryModelFromJson(json);
+  factory NewsModel.fromJson(Map<String, dynamic> json) => _$NewsModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$HistoryModelToJson(this);
+  Map<String, dynamic> toJson() => _$NewsModelToJson(this);
 }

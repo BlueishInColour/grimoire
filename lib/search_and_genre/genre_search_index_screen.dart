@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grimoire/commons/views/book_list_item.dart';
+import 'package:grimoire/home_books/book_detail_screen.dart';
+import 'package:grimoire/main.dart';
 import 'package:grimoire/models/genre_model.dart';
 
 import '../commons/views/paginated_view.dart';
@@ -18,7 +20,7 @@ class GenreIndexScreen extends StatefulWidget {
 
 class _GenreIndexScreenState extends State<GenreIndexScreen>with TickerProviderStateMixin {
   // late TabController tabController;
-  List<String> subGenres = ["All","Hot","Latest"];
+  List<String> subGenres = ["All","Latest"];
   String currentSubGenre = "All";
 
   fetchSubGenres()async{
@@ -43,7 +45,7 @@ class _GenreIndexScreenState extends State<GenreIndexScreen>with TickerProviderS
 
   Widget build(BuildContext context) {
     return  Scaffold(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
 appBar: AppBar(
   foregroundColor: Colors.white60,
 ),
@@ -70,23 +72,23 @@ appBar: AppBar(
                     });
                   }),
             ),
-           page(widget.currentGenre,currentSubGenre)
+           page(context,widget.currentGenre,currentSubGenre)
           ],
       ),
     );
   }
 }
 
-Widget page(String currentGenre, String currentSubGenre) {
+Widget page(BuildContext context,String currentGenre, String currentSubGenre) {
   return  Expanded(
     child:paginatedView(
         key: Key(currentGenre+currentSubGenre),
         emptyText: "No Books Yet in ${currentGenre} Section",
         query:
-        currentSubGenre=="All"? FirebaseFirestore.instance.collection("library").where("category",isEqualTo: currentGenre).where("private",isEqualTo: false)
-            :currentSubGenre=="Hot"?FirebaseFirestore.instance.collection("library").where("category",isEqualTo: currentGenre).where("private",isEqualTo: false).orderBy("seen",descending: true)
-            :currentSubGenre=="Latest"?FirebaseFirestore.instance.collection("library").where("category",isEqualTo: currentGenre).where("private",isEqualTo: false).orderBy("createdAt",descending: true)
-            :FirebaseFirestore.instance.collection("library").where("category",isEqualTo: currentGenre).where("tags",arrayContains: currentSubGenre).where("private",isEqualTo: false)
+        currentSubGenre=="All"? FirebaseFirestore.instance.collection("library").where("category",isEqualTo: currentGenre).where("status",isEqualTo: Status.Publish.name)
+            // :currentSubGenre=="Hot"?FirebaseFirestore.instance.collection("library").where("category",isEqualTo: currentGenre).where("status",isEqualTo: Status.Publish.name).orderBy("seen",descending: true)
+            :currentSubGenre=="Latest"?FirebaseFirestore.instance.collection("library").where("category",isEqualTo: currentGenre).where("status",isEqualTo: Status.Publish.name).orderBy("createdAt",descending: true)
+            :FirebaseFirestore.instance.collection("library").where("category",isEqualTo: currentGenre.toCapitalized).where("subCategory",arrayContains: currentSubGenre.toCapitalized).where("status",isEqualTo: Status.Publish.name)
 
         ,//.where("genre",isEqualTo: widget.currentGenre),
         child: (datas,index){
@@ -96,8 +98,12 @@ Widget page(String currentGenre, String currentSubGenre) {
 
           return BookListItem(
             book: book,
-            onTap: (){},
-            size: 8,
+            onTap: (){
+              goto(context, BookDetailScreen(bookId: book.bookId, book: book));
+            },
+            size: SMALLSIZE,
+
+
           );
         }),
   );
@@ -191,4 +197,10 @@ Widget tabButton(
       fontSize: 13
 
     ),));
+}
+
+
+extension StringCasingExtension on String {
+  String get toCapitalized => length > 0 ?'${this[0].toUpperCase()}${substring(1).toLowerCase()}':'';
+  String get toTitleCase => replaceAll(RegExp(' +'), ' ').split(' ').map((str) => str.toCapitalized).join(' ');
 }

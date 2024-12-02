@@ -12,7 +12,9 @@ class HistoryRepository{
         HistoryModel(
             bookId: bookId
         ).toJson()
-    ).whenComplete((){showToast("history made");});
+    ).whenComplete((){
+      // showToast("history made");
+    });
   }
   removeBookHistory(String bookId)async{
     await ref.doc(bookId).delete().whenComplete((){showToast("un-liked");});

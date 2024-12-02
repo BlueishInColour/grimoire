@@ -119,8 +119,8 @@ updateReadHours()async{
               floating: true,
               automaticallyImplyLeading: true,
               foregroundColor: textColor,
-              leading: BackButton(onPressed: ()async{
-                await updateReadHours();
+              leading: BackButton(onPressed: (){
+                 updateReadHours();
                 Navigator.pop(context);
               },),
               actions: [

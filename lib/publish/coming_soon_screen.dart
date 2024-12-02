@@ -148,7 +148,8 @@ class _BookComingSoonTabState extends State<BookComingSoonTab> with TickerProvid
                       String,
                       dynamic>;
                   ScheduledModel scheduledModel = ScheduledModel.fromJson(json);
-                  return BookListAdapterItem(
+                  return
+                    BookListAdapterItem(
                     child: (book) {
                       return   Column(
                         children: [
@@ -210,7 +211,7 @@ class _BookComingSoonTabState extends State<BookComingSoonTab> with TickerProvid
                       String,
                       dynamic>;
                   CalenderEvent event = CalenderEvent.fromJson(json);
-                  return paginatedView(query: ComingSoonRepository().bookRef.where("bookId",isEqualTo: event.id),
+                  return paginatedView(query: ComingSoonRepository().bookRef.where("id",isEqualTo: event.id),
                       shrinkWrap: true,
                       child: (datas,index){
                         Map<String, dynamic> json = datas[index].data() as Map<

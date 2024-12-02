@@ -1,4 +1,3 @@
-import 'package:animated_box_decoration/animated_box_decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:grimoire/main_controller.dart';
 import 'package:provider/provider.dart';

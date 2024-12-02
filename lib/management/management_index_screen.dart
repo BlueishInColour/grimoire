@@ -9,6 +9,7 @@ import 'package:grimoire/app/feedback_screen.dart';
 import 'package:grimoire/commons/views/bottom.dart';
 import 'package:grimoire/constant/CONSTANT.dart';
 import 'package:grimoire/management/categories_screen.dart';
+import 'package:grimoire/management/news_screen.dart';
 import 'package:grimoire/management/review_books_screen.dart';
 import 'package:grimoire/management/review_lists_screen.dart';
 import 'package:grimoire/management/users_screen.dart';
@@ -66,6 +67,7 @@ class _ManagementIndexScreenState extends State<ManagementIndexScreen> with Tick
             children: [
               AdsMineView(),
               UsersScreen(),
+              NewsScreen(),
               ReviewBooksScreen(),
               ReviewListsScreen(),
               // Text("Review Stories"),
@@ -86,6 +88,7 @@ class _ManagementIndexScreenState extends State<ManagementIndexScreen> with Tick
 List<String> managementTabs = [
   "Ads Mine",
   "Users",
+  "News",
   "Review Books",
   "Review Lists",
   // "Review Stories",

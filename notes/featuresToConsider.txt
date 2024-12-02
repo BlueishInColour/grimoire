@@ -1,7 +1,16 @@
 This are features to consider in the future
 
 3rd nov,2024
-done - download book, probably as pdf and save in app
+done done - download book, probably as pdf and save in app
 doing- monitization system
+
+30th nov, 2024
 - add search functionality with typesense but firebase paid plan required
 - app notification
+- in app purchase
+- notification online and offline on latest books and downloads
+- news feature
+- writers and statistics
+- auto tweet, like, follow, post on facebook, instagram and twiiter, whatsapp
+- work on multi threading and background features
+- more languages

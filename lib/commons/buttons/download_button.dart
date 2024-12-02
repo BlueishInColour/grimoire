@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:path/path.dart';
-// import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
@@ -39,25 +36,6 @@ class _DownloadButtonState extends State<DownloadButton> {
 
   }
   downloadFile()async{
-
-    String fileName =widget.title+".pdf";
-
-
-String path  = await getFilePath(fileName);
-    debugPrint(path);
-
-    final taskId = await FlutterDownloader.enqueue(
-      url: widget.bookUrl,
-      savedDir: await getFilePath(widget.title),
-      timeout: 30000,
-      fileName: fileName, // Optional: define a filename
-      showNotification: true, // Optional: show a notification with progress
-      openFileFromNotification: true, // Optional: open the file when tapped
-
-      saveInPublicStorage: true
-    );
-
-await    FlutterDownloader.retry(taskId: taskId ??"");
   }
 
   @override

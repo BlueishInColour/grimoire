@@ -110,7 +110,7 @@ class StoryRepository{
             bookTitle:book.title,
             category: book.category,
             content: story.content,
-            part: index+1,
+            part: story.chapterIndex,
             bookCoverImageUrl: book.bookCoverImageUrl,
             date: story.createdAt));
     showToast("Downloaded ${story.title}");

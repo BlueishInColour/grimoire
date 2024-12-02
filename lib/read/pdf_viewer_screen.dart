@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:grimoire/main_controller.dart';
-import 'package:pdfrx/pdfrx.dart';
 import 'package:provider/provider.dart';
 
 import '../commons/ads/ads_helper.dart';
@@ -48,7 +47,6 @@ class _PDFViewScreenState extends State<PDFViewScreen> {
           //   SizedBox(width: 10,)
           // ],
         ),
-      body:
         // widget.isFile?
         // SfPdfViewer.file(File(widget.pdfPath),
         //   onTextSelectionChanged:
@@ -84,10 +82,8 @@ class _PDFViewScreenState extends State<PDFViewScreen> {
       //
       //
       //     )
-        widget.isFile?
-            PdfViewer.file(widget.pdfPath)
-            :PdfViewer.uri(Uri.parse(widget.pdfPath))
-      ,  bottomNavigationBar: adaptiveAdsView(
+
+       bottomNavigationBar: adaptiveAdsView(
           AdHelper.getAdmobAdId(adsName:Ads.addUnitId1)
 
       )

@@ -10,6 +10,7 @@ import 'package:grimoire/models/user.dart';
 import 'package:grimoire/read/pdf_viewer_screen.dart';
 import 'package:grimoire/repository/book_repository.dart';
 import 'package:grimoire/repository/user_repository.dart';
+import 'package:grimoire/search_and_genre/genre_search_index_screen.dart';
 import 'package:provider/provider.dart';
 import '../../models/book_model.dart';
 import '../buttons/download_button.dart';
@@ -74,7 +75,7 @@ class _BookListItemState extends State<BookListItem> {
                                 overflow: TextOverflow.ellipsis,
                                 style: GoogleFonts.montserrat(
                                   fontWeight: FontWeight.w600,
-                                  fontSize:20,
+                                  fontSize:widget.size-5,
                                   color: widget.textColor
                                 ),
                             ),
@@ -85,7 +86,7 @@ class _BookListItemState extends State<BookListItem> {
                             builder: (context, snapshot) {
                               final textStyle =  GoogleFonts.montserrat(
                                   fontWeight: FontWeight.w700,
-                                  fontSize:12,
+                                  fontSize:widget.size-10,
                                   color:widget.secondTextColor
                               );
                               if(snapshot.connectionState == ConnectionState.waiting) return Text("@",style: textStyle,);
@@ -135,19 +136,76 @@ class _BookListItemState extends State<BookListItem> {
                                   }
                                 ),],),
                               SizedBox(width: 10,),
-                      
-                              Container(
-                                  padding: EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.purple.shade50,
-                                    borderRadius: BorderRadius.circular(5)
-                                  ),
-                                  child: Text(widget.book.category,
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.w800
 
-                                  ),)),
+                              Expanded(
+                                child: SizedBox(
+                                  // width: widget.size*5,
+                                  height: 20,
+                                  child: ListView(
+                                    scrollDirection: Axis.horizontal,
+                                    children: [
+                                      Container(
+                                          padding: EdgeInsets.all(5),
+                                          decoration: BoxDecoration(
+                                              color: Colors.purple.shade50,
+                                              borderRadius: BorderRadius.circular(5)
+                                          ),
+                                          child: GestureDetector(
+                                            onTap:(){
+                                              // goto(context,GenreIndexScreen(currentGenre:book.category));
+                                          },
+                                            child: Text(widget.book.category,
+                                              style: GoogleFonts.montserrat(
+                                                  fontSize: 8,
+                                                  fontWeight: FontWeight.w800
+                                              ),),
+                                          )),
+                                
+                                      book.subCategory.isEmpty?
+                                      SizedBox(): Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 1.0),
+                                        child: Container(
+                                          width: 4,
+                                          height: 2,
+                                          padding: EdgeInsets.symmetric(vertical: 4),
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      Row(
+                                        children:
+                                        book.subCategory.map((v){
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                                            child: Container(
+                                                padding: EdgeInsets.all(5),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.blue.shade50,
+                                                    borderRadius: BorderRadius.circular(5)
+                                                ),
+                                                child: GestureDetector(
+                                
+                                                  onTap: (){
+                                                    goto(context,
+                                                    Scaffold(
+                                                      appBar: AppBar(
+                                                        title: Text("Other Books From $v"),
+                                                      ),
+                                                      body: page(context, book.category, v),
+                                                    ));
+                                                  },
+                                                  child: Text(v,
+                                                    style: GoogleFonts.montserrat(
+                                                        fontSize: 8,
+                                                        fontWeight: FontWeight.w800
+                                                    ),),
+                                                )),
+                                          );
+                                        }).toList(),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
 
                             ],
                           )
@@ -207,9 +265,7 @@ Widget image(context,String imageUrl,double size,){
       height: 8*size,
       width: 5*size,
       fit: BoxFit.fill,
-      placeholder: (_,__){
-        return placeHolder();
-      },
+
       errorWidget: (context,_,__){
         return placeHolder();
       },

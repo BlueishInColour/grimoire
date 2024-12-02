@@ -85,6 +85,7 @@ double size = 25;
               children: [
                 Text(list.title,
                   maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.w700,
                       fontSize: 13

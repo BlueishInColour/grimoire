@@ -131,9 +131,11 @@ class _SearchResultScreenState extends State<SearchResultScreen> with TickerProv
               ),
               title: Text("@"+user.pen_name),
               trailing:  CircleAvatar(
+                backgroundColor: Colors.transparent,
                 child: StreamBuilder<bool>(
                     stream: FollowRepository().isFollowing(user.email_address),
                     builder: (context, snapshot) {
+                      if(snapshot.connectionState == ConnectionState.waiting)return Text("-",style: TextStyle(fontWeight: FontWeight.w900,fontSize: 20),);
                       if(snapshot.hasData && snapshot.data ==true){
                         return  GestureDetector(
                             onTap: (){

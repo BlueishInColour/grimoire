@@ -8,32 +8,18 @@ import 'package:numhelpers/numhelpers.dart';
 import '../../home_books/book_detail_screen.dart';
 import '../../main.dart';
 import '../../models/book_model.dart';
+import '../../search_and_genre/genre_search_index_screen.dart';
 
 
 class BookGridItem extends StatefulWidget {
   const BookGridItem({super.key,this.child,required this.onTap,
-    this.tags =const [],
     required this.book,
     required this.onDoubleTap,
-    this.subCategories = const [],
-    this.genre ='',
-    this.bookUrl = "",this.store = "",this.imageUrl = "",required this.id,this.sold = 0,this.size=15,this.title = "",this.aboutBook="",this.authorPenName="grimoire",this.price = 20000});
+    this.size=15});
   final double size;
-  final String id;
-  final String title;
-  final String aboutBook;
-  final String authorPenName;
-  final double price;
-  final int sold;
-  final String imageUrl;
-  final String bookUrl;
-  final String store;
-  final String genre;
-  final List subCategories;
   final Function()? onTap;
   final Function()? onDoubleTap;
   final Widget? child;
-  final List<String> tags;
   final BookModel book;
 
   @override
@@ -57,7 +43,7 @@ class _BookGridItemState extends State<BookGridItem> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              image(context, widget.imageUrl, widget.size),
+              image(context, widget.book.bookCoverImageUrl, widget.size),
 
 
               SizedBox(height: 4,),
@@ -73,13 +59,18 @@ class _BookGridItemState extends State<BookGridItem> {
                             color: Colors.purple.shade50,
                             borderRadius: BorderRadius.circular(5)
                         ),
-                        child: Text(widget.book.category,
-                          style: GoogleFonts.montserrat(
-                              fontSize: 8,
-                              fontWeight: FontWeight.w800
-                          ),)),
+                        child: GestureDetector(
+                          onTap:(){
+                            // goto(context,GenreIndexScreen(currentGenre:widget.book.category));
+                          },
+                          child: Text(widget.book.category,
+                            style: GoogleFonts.montserrat(
+                                fontSize: 8,
+                                fontWeight: FontWeight.w800
+                            ),),
+                        )),
 
-                    widget.subCategories.isEmpty?
+                    widget.book.subCategory.isEmpty?
                         SizedBox(): Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 1.0),
                       child: Container(
@@ -91,7 +82,7 @@ class _BookGridItemState extends State<BookGridItem> {
                     ),
                     Row(
                       children:
-                      widget.subCategories.map((v){
+                      widget.book.subCategory.map((v){
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 2.0),
                           child: Container(
@@ -100,11 +91,23 @@ class _BookGridItemState extends State<BookGridItem> {
                                   color: Colors.blue.shade50,
                                   borderRadius: BorderRadius.circular(5)
                               ),
-                              child: Text(v,
-                                style: GoogleFonts.montserrat(
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.w800
-                                ),)),
+                              child: GestureDetector(
+
+                                onTap: (){
+                                  goto(context,
+                                      Scaffold(
+                                        appBar: AppBar(
+                                          title: Text("Other Books From $v"),
+                                        ),
+                                        body: page(context, widget.book.category, v),
+                                      ));
+                                },
+                                child: Text(v,
+                                  style: GoogleFonts.montserrat(
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.w800
+                                  ),),
+                              )),
                         );
                       }).toList(),
                     )

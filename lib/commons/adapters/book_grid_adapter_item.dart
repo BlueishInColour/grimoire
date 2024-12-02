@@ -61,7 +61,6 @@ class _BookGridAdapterItemState extends State<BookGridAdapterItem> {
                 ],
               );
               return BookGridItem(
-                subCategories: book.subCategory,
                 onDoubleTap: ()async{
                   showToast("Liked");
                   bool isLiked = await  LikeRepository().isLiked(book.bookId);
@@ -73,13 +72,19 @@ class _BookGridAdapterItemState extends State<BookGridAdapterItem> {
 
                   }
                 },
-                onTap:()=>widget.onTap(book), book: book, id: book.bookId,imageUrl: book.bookCoverImageUrl,size: MIDDLESIZE,);
+                onTap:()=>widget.onTap(book), book: book,size: MIDDLESIZE,);
             }
-            else return Stack(
+            else return Column(
               children: [
                 ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: image(context,"",widget.size)),
+             Text("un - available",
+             style: GoogleFonts.montserrat(
+               fontSize: 10,
+               fontWeight: FontWeight.w700,
+               color: Colors.grey.shade600
+             ),)
              // Positioned(
              //     bottom: 5,
              //     left: 0,

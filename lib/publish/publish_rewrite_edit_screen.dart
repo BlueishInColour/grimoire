@@ -99,7 +99,7 @@ class _PublishRewriteEditScreenState extends State<PublishRewriteEditScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    image(context,bookModel.bookCoverImageUrl,size),
+                    image(context,bookModel.bookCoverImageUrl,MIDDLESIZE),
 
                     SizedBox(width: 5,),
                     Expanded(

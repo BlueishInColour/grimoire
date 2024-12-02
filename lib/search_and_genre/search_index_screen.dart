@@ -13,6 +13,7 @@ import 'package:grimoire/search_and_genre/search_result_screen.dart';
 import '../commons/ads/ads_helper.dart';
 import '../commons/ads/ads_view.dart';
 import '../main.dart';
+import '../models/book_model.dart';
 import '../models/genre_model.dart';
 
 class SearchIndexScreen extends StatefulWidget {
@@ -40,7 +41,7 @@ int selectedIndex = 0;
         headerSliverBuilder:(context,_)=> [
       ],
         body: Scaffold(
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.white,
 
       appBar:  AppBar(
 
@@ -70,7 +71,7 @@ int selectedIndex = 0;
 
                     context,
                     backgroundColor : selectedIndex == categories.indexOf(v)?colorRed:Colors.black87,
-                    future: FirebaseFirestore.instance.collection("library").where("category",isEqualTo: v).where("private",isEqualTo: false).count().get())
+                    future: FirebaseFirestore.instance.collection("library").where("category",isEqualTo: v).where("status",isEqualTo: Status.Publish.name).count().get())
               ],
             ) );
           }).toList())

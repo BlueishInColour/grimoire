@@ -3,6 +3,7 @@ import 'package:date_time_format/date_time_format.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grimoire/models/story_model.dart';
+import 'package:grimoire/repository/book_repository.dart';
 
 import '../../models/book_model.dart';
 
@@ -24,18 +25,33 @@ class _StoryListItemState extends State<StoryListItem> {
       children: [
         ClipRRect(
           borderRadius:BorderRadius.circular(10),
-          child: Image.asset("assets/book_cover.png",
+          child: Image.network(story.storyCoverImageUrl,
             height: 9*15,
             width: 16*20,
             fit: BoxFit.fill,),
         ),
         SizedBox(height: 5,),
-        Text("The Mysterious Library",
-            style: GoogleFonts.merriweather(
-                color: Colors.white70,
+        FutureBuilder(
+          future: FirebaseFirestore.instance.collection("library").doc(story.bookId).get(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              BookModel book = BookModel.fromJson(snapshot.data?.data()??{} );
+              return Text(book.title,
+                  style: GoogleFonts.merriweather(
+                      color: Colors.white70,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700
+                  )
+              );
+            }
+            else
+              return Text("-", style: TextStyle(
+
                 fontSize: 10,
-                fontWeight: FontWeight.w700
-            )
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white70),);
+          }
+
         ),
         Text("Chapter ${story.chapterIndex}",
             style: GoogleFonts.merriweather(
@@ -112,7 +128,7 @@ class _StoryListAdaptiveItemState extends State<StoryListAdaptiveItem> {
           {return Padding(
             padding: const EdgeInsets.all(8.0),
             child: SizedBox(
-              height: 16*widget.size,
+              height: 9*widget.size,
               child: Row(
                 children: [
                   Container(
@@ -126,16 +142,7 @@ class _StoryListAdaptiveItemState extends State<StoryListAdaptiveItem> {
                           color: Colors.grey[200],
                           borderRadius: BorderRadius.circular(10)
                       ),
-                      height :16*widget.size,
-                      child: Row(
-                        children: [
-                          Container(
-                            color:widget.isDarkMode?Colors.white12 : Colors.grey[100],
-                            height :16*widget.size,
-                            width: 9*widget.size,
-                          )
-                        ],
-                      ),
+                      height :9*widget.size,
                     ),
                   ),
                 ],
@@ -206,7 +213,7 @@ class _StoryListAdaptiveItemState extends State<StoryListAdaptiveItem> {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [Container(
-                  width:80,
+                  width:60,
 
                 ),
                   Expanded(
@@ -216,14 +223,14 @@ class _StoryListAdaptiveItemState extends State<StoryListAdaptiveItem> {
                           color: Colors.grey[200],
                           borderRadius: BorderRadius.circular(10)
                       ),
-                      height :16*widget.size,
-                      child: Row(
+                      height :9*widget.size,
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Image.asset(
                             "assets/book_cover.png",
-                            height :16*widget.size,
-                            width: 9*widget.size,
+                            height :9*widget.size,
+                            width: 16*widget.size,
                           ),
 
                           SizedBox(width: 10,),

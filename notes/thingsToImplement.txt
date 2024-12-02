@@ -159,3 +159,7 @@ calculare monitization with readhours and seen history
 
 28th nov 2024
 - app should hide private books allround app
+
+3oth nov, 2024
+- finish news section
+- downloads should group books of similar bookid in row, ordered by index

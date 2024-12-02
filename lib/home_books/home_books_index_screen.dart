@@ -31,6 +31,7 @@ import '../commons/views/load_widget.dart';
 import '../commons/views/paginated_view.dart';
 import '../main.dart';
 import '../models/book_model.dart';
+import '../news/news_letter_widget.dart';
 import '../search_and_genre/search_result_screen.dart';
 
 class HomeBooksIndexScreen extends StatefulWidget {
@@ -49,7 +50,7 @@ class _HomeBooksIndexScreenState extends State<HomeBooksIndexScreen> with Ticker
   void initState() {
     // TODO: implement initState
     super.initState();
-    tabController = TabController(length: 2, vsync: this,initialIndex: 1);
+    tabController = TabController(length: 3, vsync: this,initialIndex: 2);
     // showPremiumPurchaseScreen(context);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       // checkOrientation(context);
@@ -110,11 +111,14 @@ class _HomeBooksIndexScreenState extends State<HomeBooksIndexScreen> with Ticker
                                     (
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text("search or chat librarian",
-                                      style: GoogleFonts.montserrat(
-                                          fontSize: 12,
-                                          color: Colors.black54
-                                      ),),
+                                      Expanded(
+                                        child: Text("search or chat librarian",
+                                        overflow: TextOverflow.ellipsis,
+                                        style: GoogleFonts.montserrat(
+                                            fontSize: 12,
+                                            color: Colors.black54
+                                        ),),
+                                      ),
                                       IconButton(
                                         onPressed: ()async{
                                           showToast("Opening whatsapp");
@@ -183,6 +187,7 @@ class _HomeBooksIndexScreenState extends State<HomeBooksIndexScreen> with Ticker
 
                                 tabAlignment: TabAlignment.center,
                                 tabs: [
+                                  Tab(text: "Mine",),
                                   Tab(text: "Following",),
                                   Tab(text: "Recommended",),
 
@@ -208,12 +213,25 @@ class _HomeBooksIndexScreenState extends State<HomeBooksIndexScreen> with Ticker
 
                                     child: Icon(Icons.offline_bolt_rounded,
                                       color: colorBlue,),
-                                  )),])
+                                  )),],
+                          bottom:kDebugMode? AppBar(
+                            automaticallyImplyLeading: false,
+                            title: NewsLetterWidget(),
+                            toolbarHeight: 20,
+                          ):null),
 
                         ],
                     body:TabBarView(
                         controller: tabController,
                         children: [
+                          paginatedView(
+                              key: Key("Mine"),
+                              query: FirebaseFirestore.instance.collection("list").where("createdBy",isEqualTo: FirebaseAuth.instance.currentUser?.email??"").orderBy("createdAt",descending: true).limit(20),
+                              child: (datas,index){
+                                Map<String,dynamic> json = datas[index].data() as Map<String,dynamic>;
+                                ListModel list = ListModel.fromJson(json);
+                                return ReadListPod(list:list);
+                              }),
 
                       FollowingRecommendationView(),
                           paginatedView(

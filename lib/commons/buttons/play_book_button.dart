@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:flutter_pdf_text/flutter_pdf_text.dart';
 
 
 class PlayBookButton extends StatefulWidget {
@@ -20,27 +19,25 @@ class _PlayBookButtonState extends State<PlayBookButton> {
   String pdfText = "";
 
 
-  Future<String> getPdfText()async{
+  getPdfText()async{
     if(widget.isFile){
-      PDFDoc doc = await PDFDoc.fromPath(widget.filePath);
-      String docText = await doc.text;
-
-      setState(() {
-        pdfText = docText;
-      });
-      return docText;
-
-    }
-    else{
-      PDFDoc doc = await PDFDoc.fromURL(widget.filePath);
-      String docText = await doc.text;
-      setState(() {
-        pdfText = docText;
-      });
-      return docText;
-
-    }
-  }
+    //
+    //   setState(() {
+    //     pdfText = docText;
+    //   });
+    //   return docText;
+    //
+    // }
+    // else{
+    //   PDFDoc doc = await PDFDoc.fromURL(widget.filePath);
+    //   String docText = await doc.text;
+    //   setState(() {
+    //     pdfText = docText;
+    //   });
+    //   return docText;
+    //
+    // }
+  }}
 
   playPdfText()async{
     String pdfText= await getPdfText();

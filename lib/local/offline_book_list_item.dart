@@ -1,6 +1,7 @@
-import 'package:file_previewer/file_previewer.dart';
+// import 'package:file_previewer/file_previewer.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grimoire/constant/CONSTANT.dart';
 
 class OfflineBookListItem extends StatefulWidget {
   const OfflineBookListItem({super.key,required this.onTap,this.filePath = "",this.size=100,this.title = "",});
@@ -31,29 +32,13 @@ class _OfflineBookListItemState extends State<OfflineBookListItem> {
             borderRadius: BorderRadius.circular(4),
             child: Container(
 
-              height:16*widget.size,
-              width: 9*widget.size,
+              height:16*SMALLSIZE,
+              width: 9*SMALLSIZE,
             decoration: BoxDecoration(
               color: Colors.grey[300]
             ),
             // height: 150,
-            child: FutureBuilder(
-            future: FilePreview.generatePDFPreview(
-
-                widget.filePath,
-                height:16*widget.size,
-                width: 9*widget.size,
-
-
-                defaultImage: Image.asset("assets/book_cover.png",fit: BoxFit.fill,)
-            ),
-            builder: (context,snapshot) {
-            if (snapshot.hasData) {
-            return snapshot.data ?? SizedBox();}
-
-            else return  Image.asset("assets/book_cover.png");
-            }
-            ),
+            child: Image.asset("assets/book_cover.png",fit: BoxFit.fill,)
             ),
           ),
               SizedBox(width: 10,),

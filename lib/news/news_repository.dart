@@ -2,39 +2,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:grimoire/home_books/book_detail_screen.dart';
 import 'package:grimoire/models/history_model.dart';
+import 'package:grimoire/news/news_model.dart';
 
-class HistoryRepository{
-  HistoryRepository();
-  CollectionReference<Map<String, dynamic>> get ref  => FirebaseFirestore.instance.collection("user_data").doc(FirebaseAuth.instance.currentUser?.email ??"").collection("history");
+class NewsRepository{
+  NewsRepository();
+  CollectionReference<Map<String, dynamic>> get ref  => FirebaseFirestore.instance.collection("news");
 
-  addBookHistory(String bookId)async{
-    await ref.doc(bookId).set(
-        HistoryModel(
-            bookId: bookId
-        ).toJson()
+  addNews(NewsModel news)async{
+    await ref.doc(news.id).set(
+        news.toJson()
     ).whenComplete((){
-      // showToast("history made");
+      showToast("news created");
     });
   }
-  removeBookHistory(String bookId)async{
-    await ref.doc(bookId).delete().whenComplete((){showToast("un-liked");});
-  }
-  Future<List<String>> FetchAllHistory()async{
-    var re =await ref.get();
-    List<String> list = re.docs.map((v){
-      HistoryModel model = HistoryModel.fromJson(v.data());
-      return model.bookId;
-    }).toList();
-    return list;
-
+  removeNews(String id)async{
+    await ref.doc(id).delete().whenComplete((){showToast("news deleted");});
   }
 
-  Future<bool>hasHistory(String bookId)async{
-    var re = await ref.doc(bookId).get();
-    return re.exists;
-  }
-  Future<AggregateQuerySnapshot> totalCountOfHistory()async{
-    return await ref.count().get();
-
-  }
 }

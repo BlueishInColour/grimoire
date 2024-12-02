@@ -10,6 +10,7 @@ import 'package:grimoire/commons/views/tab_count.dart';
 import 'package:grimoire/home_books/book_detail_screen.dart';
 import 'package:grimoire/local/downloaded_index_screen.dart';
 import 'package:grimoire/main.dart';
+import 'package:grimoire/publish/publish_rewrite_edit_screen.dart';
 import 'package:grimoire/publish/publish_write_edit_screen.dart';
 
 import '../commons/ads/ads_helper.dart';
@@ -51,13 +52,21 @@ class _MyBooksIndexScreenState extends State<MyBooksIndexScreen> with TickerProv
           Map<String,dynamic> json = datas[index].data() as Map<String,dynamic>;
           var book = BookModel.fromJson(json);
 
-          return BookListItem(
-            book: book,
-            onTap: (){
-              goto(context, BookDetailScreen(book: book,bookId: book.bookId,));
-            },
-            size: size,
-
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              BookListItem(
+                book: book,
+                onTap: (){
+                  goto(context, BookDetailScreen(book: book,bookId: book.bookId,));
+                },
+                size: size,
+              
+              ),
+              TextButton(onPressed: (){
+                goto(context, PublishRewriteEditScreen(book: book));
+              }, child: Text("Edit"))
+            ],
           );
         });
   }

@@ -38,9 +38,9 @@ class _DownloadedIndexScreenState extends State<DownloadedIndexScreen> with Tick
   @override
   Widget build(BuildContext context) {
     return Consumer<MainController>(
-
         builder:(context,c,child)=> Scaffold(
           appBar: AppBar(
+            backgroundColor: Colors.transparent,
             title: Text("Downloads"),
           ),
           body: FutureBuilder(future: LocalBooksController().fetchStories(),
@@ -78,7 +78,7 @@ class _DownloadedIndexScreenState extends State<DownloadedIndexScreen> with Tick
 
                            },
                            child: SizedBox(
-                             height: 8*14,
+                             height: 8*SMALLSIZE,
                              // width: MediaQuery.of(context).size.width,
                              child: Row(
                                crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,14 +92,14 @@ class _DownloadedIndexScreenState extends State<DownloadedIndexScreen> with Tick
                                    children: [
                                      Text(story.bookTitle +" ${story.part ?? 1}",
                                      style: GoogleFonts.montserrat(
-                                       fontSize: 7,
+                                       fontSize: 10,
                                        fontWeight: FontWeight.w900,
                                        color: Colors.black54
                                      ),),
                                  
                                      Text(story.title,
                                        style: GoogleFonts.merriweather(
-                                           fontSize: 15,
+                                           fontSize: 17,
                                          fontWeight: FontWeight.w800
                                        ),),
                                  

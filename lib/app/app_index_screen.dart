@@ -90,7 +90,7 @@ class _AppIndexScreenState extends State<AppIndexScreen> {
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color:Colors.white12
+              color:Colors.white24
           ),
           child: Column(children: listOfTab.map((v){
             return listTile(v);
@@ -211,12 +211,12 @@ List<tab> listOfCollections (BuildContext   context)=> [
 ];
 List<tab> listOfInApp (BuildContext   context,{bool isTablet = false})=> [
 
-   tab(title: "History",      onTap: (){
-    if(!isTablet) goto(context, HistoryIndexScreen());
-    else ggoto(context, 1);
-
-  },
-      icon: Icons.history),
+  //  tab(title: "History",      onTap: (){
+  //   if(!isTablet) goto(context, HistoryIndexScreen());
+  //   else ggoto(context, 1);
+  //
+  // },
+  //     icon: Icons.history),
   // if(!kIsWeb) tab(title: "Local Books",      onTap: (){
   //    goto(context, LocalBooksIndexScreen());
   //
@@ -268,19 +268,23 @@ List<tab> listOfInApp (BuildContext   context,{bool isTablet = false})=> [
 tab(title: "Buy Us a Coffee",
 iconColor: Colors.amber.shade900,
 icon: EneftyIcons.coffee_outline,
-onTap: ()async{await EasyLauncher.url(url: "https://www.buymeacoffee.com/grimoire_live",
+onTap: ()async{await EasyLauncher.url(url: "https://buymeacoffee.com/grimoire_live",
 mode: Mode.externalApp);}
 ),
-  tab(title: "Publish Book",      onTap: ()async{
-   await  rateUs("com.blueishincolour.grimoire_creators");
 
-  },
-      //
-      icon: Icons.upload_outlined),
 
 
 ];
 List<tab> listOfLinksTabs(BuildContext context) => [
+  tab(title: "Publish Book",      onTap: ()async{
+    // await  rateUs("com.blueishincolour.grimoire_creators");
+    await EasyLauncher.email(email: "blueishincolour@gmail.com",
+        subject: "Writers Application",
+        body: "It will be an honour write on Grimoire. Sign me up with this email address. I'll love to hear back from you soon.");
+
+  },
+      //
+      icon: Icons.upload_outlined),
   tab(
       onTap: ()async{
         showToast("Opening whatsapp");
@@ -346,13 +350,13 @@ List<tab> listOfApp(BuildContext   context) =>[
   ),
 
 
-  // // icon: Icons.sm),
-  // tab(title: "About Grimoire",
-  //   iconColor: Colors.purple.shade900,      onTap: (){
-  //     openUrlLink();
-  //   },
-  //
-  //   icon: Icons.warning_amber_rounded,),
+  // icon: Icons.sm),
+  if(isManagement)tab(title: "About Grimoire",
+    iconColor: Colors.purple.shade900,      onTap: (){
+     goto(context, ManagementIndexScreen());
+    },
+
+    icon: Icons.settings_outlined,),
 
 ];
 

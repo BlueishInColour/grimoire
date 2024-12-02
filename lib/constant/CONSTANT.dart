@@ -20,7 +20,7 @@ List<String> languages = [
 ];
 
 Color colorRed = Color(0xffff0000);
-Color colorPurple = Color(0xFFf799ff);
+Color colorPurple = Color(0xFFeb09ff);
 Color colorBlue = Color(0xFF3b54ff);
 
 

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:file_previewer/file_previewer.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grimoire/main.dart';
@@ -47,32 +46,32 @@ class _OfflineBookGridItemState extends State<OfflineBookGridItem> {
                 child:
                 SizedBox(
                   // height: 150,
-                             child: FutureBuilder(
-                               future: FilePreview.getThumbnail(
-
-                                   widget.filePath,
-                                   height: widget.height,
-                                   width: widget.height/1.5,
-
-                                   defaultImage: Image.asset("assets/book_cover.png")
-                               ),
-                               builder: (context,snapshot) {
-                                 if (snapshot.hasData) {
-                                   return snapshot.data ?? SizedBox();}
-
-                                 else return   Container(
-                                   height: widget.height,
-                                   width: widget.height/1.5,
-                                   decoration: BoxDecoration(
-                                       color: Colors.grey.shade300,
-                                       borderRadius: BorderRadius.circular(10),
-
-
-                                   ),
-                                 );
-                               }
-                             ),
-                           ),
+                  //            child: FutureBuilder(
+                           //     future: FilePreview.getThumbnail(
+                           //
+                           //         widget.filePath,
+                           //         height: widget.height,
+                           //         width: widget.height/1.5,
+                           //
+                           //         defaultImage: Image.asset("assets/book_cover.png")
+                           //     ),
+                           //     builder: (context,snapshot) {
+                           //       if (snapshot.hasData) {
+                           //         return snapshot.data ?? SizedBox();}
+                           //
+                           //       else return   Container(
+                           //         height: widget.height,
+                           //         width: widget.height/1.5,
+                           //         decoration: BoxDecoration(
+                           //             color: Colors.grey.shade300,
+                           //             borderRadius: BorderRadius.circular(10),
+                           //
+                           //
+                           //         ),
+                           //       );
+                           //     }
+                           //   ),
+                           // ),
                             // Image. asset("assets/pdf_image.png"),
                             // title: Text(
                             //   fileName,
@@ -85,6 +84,7 @@ class _OfflineBookGridItemState extends State<OfflineBookGridItem> {
                             //   height:150,
                             //   filePath, currentPage: 1,)
                           // );}),
+                )
               ),
             ],
           ),

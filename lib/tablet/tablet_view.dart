@@ -165,7 +165,6 @@ checkConectivity()async{
       )
                )),
            Expanded(
-               flex: 5,
                child:
                [
                  HomeBooksIndexScreen(isTablet: true,),
@@ -176,12 +175,8 @@ checkConectivity()async{
                  DownloadedIndexScreen()
                ][c.mainSelectedIndex]
            ),
-           Divider(
-             color: Colors.black,
-             thickness: 4,
-           ),
+
            Expanded(
-               flex: 4,
                child:[
                  SearchIndexScreen(),
                  ManagementIndexScreen(),
