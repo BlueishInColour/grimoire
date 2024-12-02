@@ -10,6 +10,7 @@ dependencies:
 
   flutter:
     sdk: flutter
+
   add_2_calendar: ^3.0.1
 #  animated_icon: ^0.0.9
 #  animated_bottom_navigation_bar: ^1.3.3
@@ -41,6 +42,7 @@ dependencies:
   enefty_icons: ^1.0.7
 
   firebase_core: ^3.5.0
+  # flutter_localization: ^0.2.2
   firebase_pagination: any
   flutter_markdown: ^0.7.4+1
   fluttertoast: ^8.2.8
@@ -52,8 +54,10 @@ dependencies:
   firebase_auth: ^5.3.0
   firebase_storage: any
   flutter_launcher_icons: ^0.13.0
-  flutter_translate: ^4.1.0
+  # flutter_translate: ^4.0.4
   flutter_native_splash: ^2.4.2
+  flutter_localizations:
+    sdk: flutter
 
   flutter_p2p_connection: ^1.0.3 # // send books offline
 #  flutter_pdfview: ^1.3.3
@@ -63,6 +67,7 @@ dependencies:
   google_sign_in: ^6.2.1
   google_fonts: ^6.2.1
   google_mobile_ads: ^2.0.0 # ^5.2.0
+  intl: any
 
   json_annotation: ^4.9.0
   json_serializable: ^6.8.0
@@ -85,7 +90,7 @@ dependencies:
   markdown_widget: ^2.3.2+6
   markdown_editor_plus: ^0.2.15
 
-  numhelpers: ^1.0.0
+  # numhelpers: ^1.0.0
 #  flutter_media_metadata: ^1.0.0+1
 #  picture_cropper: ^0.1.15
 
@@ -130,6 +135,7 @@ dependencies:
 #  get: ^4.6.5
 
   visibility_detector: ^0.4.0+2
+  # flutter_gen: ^5.8.0
 #  inview_notifier_list: ^3.0.0
 
 
@@ -145,10 +151,13 @@ dev_dependencies:
   hive_generator: ^2.0.1
 
 flutter:
+  generate: true
   uses-material-design: true
   assets:
     # Add assets from the images directory to the application.
 #    - assets/google2.png
+    - assets/i18n/
+
     - assets/icon.png
     - assets/empty.png
 #    - assets/no_internet.png
